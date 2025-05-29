@@ -26,19 +26,22 @@ const AdminLogin = ({ onLogin }) => {
       const { token, user } = response.data;
       
       // Check if user is admin
-      if (user.type !== 'admin') {
+      if (!user || user.type !== 'admin') {
         setError('Access denied. Admin privileges required.');
         setLoading(false);
         return;
       }
       
-      // Store token and user info
+      // Store token and user info - store in both formats for compatibility
       localStorage.setItem('token', token);
+      localStorage.setItem('authToken', token);
       localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem('userData', JSON.stringify(user));
       
       // Notify parent component about successful login
       onLogin(user);
     } catch (error) {
+      console.error('Login error:', error);
       setError(error.response?.data?.message || 'Login failed. Please check your credentials.');
     } finally {
       setLoading(false);
@@ -442,18 +445,40 @@ const ProductsList = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await api.get('/admin/products');
-        setProducts(response.data?.products || []);
-        // Extract currently featured products
-        const featured = Array.isArray(response.data?.products) ? 
-          response.data.products
+        setLoading(true);
+        
+        // Get the token from either storage location
+        const token = localStorage.getItem('token') || localStorage.getItem('authToken');
+        if (!token) {
+          setError('Authentication required');
+          setLoading(false);
+          return;
+        }
+
+        const response = await axios.get('https://equiply-jrej.onrender.com/admin/products', {
+          headers: {
+            'x-access-token': token,
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        console.log('Admin products response:', response.data);
+        
+        if (response.data?.success) {
+          setProducts(response.data.products || []);
+          
+          // Extract currently featured products
+          const featured = (response.data.products || [])
             .filter(product => product.isFeatured)
-            .map(product => product._id) : 
-          [];
-        setFeaturedProducts(featured);
+            .map(product => product._id);
+            
+          setFeaturedProducts(featured);
+        } else {
+          throw new Error('Failed to load products data');
+        }
       } catch (error) {
-        setError('Failed to load products');
-        console.error(error);
+        console.error('Error loading products:', error);
+        setError(error.response?.data?.message || 'Failed to load products');
       } finally {
         setLoading(false);
       }
@@ -750,39 +775,85 @@ const AdminDashboard = () => {
 const AdminPage = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   
   useEffect(() => {
     // Check if user is already logged in
-    const storedUser = localStorage.getItem('user');
-    const storedToken = localStorage.getItem('token');
-    
-    if (storedUser && storedToken) {
+    const checkAdminStatus = async () => {
       try {
-        const parsedUser = JSON.parse(storedUser);
-        if (parsedUser.type === 'admin') {
-          setIsLoggedIn(true);
-          setUser(parsedUser);
+        // Check both storage keys for compatibility
+        const storedUser = localStorage.getItem('user') || localStorage.getItem('userData');
+        const storedToken = localStorage.getItem('token') || localStorage.getItem('authToken');
+        
+        if (storedUser && storedToken) {
+          try {
+            const parsedUser = JSON.parse(storedUser);
+            
+            // Verify with the server that this is still a valid admin user
+            const response = await axios.get('https://equiply-jrej.onrender.com/admin/verify', {
+              headers: {
+                'x-access-token': storedToken,
+                'Authorization': `Bearer ${storedToken}`
+              }
+            });
+            
+            if (response.data.success && parsedUser.type === 'admin') {
+              setUser(parsedUser);
+              setIsLoggedIn(true);
+            } else {
+              // Clear invalid data
+              localStorage.removeItem('user');
+              localStorage.removeItem('token');
+              localStorage.removeItem('userData');
+              localStorage.removeItem('authToken');
+              setError('Admin session expired. Please log in again.');
+            }
+          } catch (e) {
+            console.error('Error verifying admin status:', e);
+            setError('Failed to verify admin credentials. Please log in again.');
+            // Clear possibly invalid data
+            localStorage.removeItem('user');
+            localStorage.removeItem('token');
+            localStorage.removeItem('userData');
+            localStorage.removeItem('authToken');
+          }
         }
-      } catch (e) {
-        console.error('Error parsing stored user data', e);
-        // Clear invalid data
-        localStorage.removeItem('user');
-        localStorage.removeItem('token');
+      } finally {
+        setLoading(false);
       }
-    }
+    };
+    
+    checkAdminStatus();
   }, []);
   
   const handleLogin = (loggedInUser) => {
     setUser(loggedInUser);
     setIsLoggedIn(true);
+    setError(null);
   };
   
   const handleLogout = () => {
     localStorage.removeItem('user');
     localStorage.removeItem('token');
+    localStorage.removeItem('userData');
+    localStorage.removeItem('authToken');
     setUser(null);
     setIsLoggedIn(false);
   };
+  
+  if (loading) {
+    return (
+      <div className="container mt-5">
+        <div className="text-center">
+          <div className="spinner-border" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+          <p className="mt-2">Verifying admin credentials...</p>
+        </div>
+      </div>
+    );
+  }
   
   return (
     <div className="admin-page">
@@ -800,7 +871,14 @@ const AdminPage = () => {
           <AdminDashboard />
         </>
       ) : (
-        <AdminLogin onLogin={handleLogin} />
+        <>
+          {error && (
+            <div className="container mt-3">
+              <div className="alert alert-danger">{error}</div>
+            </div>
+          )}
+          <AdminLogin onLogin={handleLogin} />
+        </>
       )}
     </div>
   );
