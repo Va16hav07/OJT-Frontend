@@ -16,8 +16,10 @@ const Homepage = () => {
         const featuredResponse = await fetch("https://equiply-jrej.onrender.com/product/featured");
         const featuredData = await featuredResponse.json();
         
-        if (featuredData.success && featuredData.featuredProducts) {
+        if (featuredData.success && Array.isArray(featuredData.featuredProducts)) {
           setFeaturedProducts(featuredData.featuredProducts);
+        } else {
+          setFeaturedProducts([]);
         }
         
         // Get all products for the "Most Popular" section
@@ -26,7 +28,7 @@ const Homepage = () => {
           throw new Error("Failed to fetch products");
         }
         const data = await response.json();
-        setProducts(data.products);
+        setProducts(Array.isArray(data.products) ? data.products : []);
         
         setLoading(false);
       } catch (err) {
@@ -67,25 +69,31 @@ const Homepage = () => {
             <div className="text-center text-red-500">Error: {error}</div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 p-6">
-              {featuredProducts.map((product) => (
-                <div
-                  key={product._id || Math.random().toString()}
-                  className="border rounded-lg p-4 flex flex-col items-center text-center"
-                >
-                  <img
-                    src={product.images || "https://via.placeholder.com/150"}
-                    alt={product.name}
-                    className="w-28 h-28 object-contain mb-4"
-                  />
-                  <h3 className="text-sm font-medium mb-2">{product.name}</h3>
-                  <p className="text-lg font-bold mb-2">₹{product.price}</p>
-                  <Link to={`/productview/${product._id}`}>
-                    <button className="bg-black text-white px-4 py-2 text-sm rounded hover:bg-gray-800">
-                      Rent Now
-                    </button>
-                  </Link>
+              {Array.isArray(featuredProducts) && featuredProducts.length > 0 ? (
+                featuredProducts.map((product) => (
+                  <div
+                    key={product._id || Math.random().toString()}
+                    className="border rounded-lg p-4 flex flex-col items-center text-center"
+                  >
+                    <img
+                      src={product.images || "https://via.placeholder.com/150"}
+                      alt={product.name}
+                      className="w-28 h-28 object-contain mb-4"
+                    />
+                    <h3 className="text-sm font-medium mb-2">{product.name}</h3>
+                    <p className="text-lg font-bold mb-2">₹{product.price}</p>
+                    <Link to={`/productview/${product._id}`}>
+                      <button className="bg-black text-white px-4 py-2 text-sm rounded hover:bg-gray-800">
+                        Rent Now
+                      </button>
+                    </Link>
+                  </div>
+                ))
+              ) : (
+                <div className="col-span-full text-center py-4">
+                  No featured products available at the moment.
                 </div>
-              ))}
+              )}
             </div>
           )}
         </div>

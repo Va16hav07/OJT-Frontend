@@ -183,7 +183,7 @@ const UsersList = () => {
       try {
         // Use our api utility
         const response = await api.get('/admin/users');
-        setUsers(response.data.users);
+        setUsers(response.data?.users || []);
       } catch (error) {
         setError('Failed to load users');
         console.error(error);
@@ -248,7 +248,7 @@ const UsersList = () => {
               </tr>
             </thead>
             <tbody>
-              {users.map(user => (
+              {Array.isArray(users) && users.map(user => (
                 <tr key={user._id}>
                   <td>{user._id}</td>
                   <td>{user.name}</td>
@@ -290,6 +290,11 @@ const UsersList = () => {
                   </td>
                 </tr>
               ))}
+              {(!Array.isArray(users) || users.length === 0) && (
+                <tr>
+                  <td colSpan="7" className="text-center">No users found</td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
@@ -308,7 +313,7 @@ const OrdersList = () => {
     const fetchOrders = async () => {
       try {
         const response = await api.get('/admin/orders');
-        setOrders(response.data.orders);
+        setOrders(response.data?.orders || []);
       } catch (error) {
         setError('Failed to load orders');
         console.error(error);
@@ -358,7 +363,7 @@ const OrdersList = () => {
               </tr>
             </thead>
             <tbody>
-              {orders.map(order => (
+              {Array.isArray(orders) && orders.map(order => (
                 <tr key={order._id}>
                   <td>{order._id}</td>
                   <td>{order.userId}</td>
@@ -413,6 +418,11 @@ const OrdersList = () => {
                   </td>
                 </tr>
               ))}
+              {(!Array.isArray(orders) || orders.length === 0) && (
+                <tr>
+                  <td colSpan="6" className="text-center">No orders found</td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
@@ -423,21 +433,23 @@ const OrdersList = () => {
 
 const ProductsList = () => {
   const [products, setProducts] = useState([]);
+  const [featuredProducts, setFeaturedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [editingProduct, setEditingProduct] = useState(null);
   const [actionLoading, setActionLoading] = useState(null);
-  const [featuredProducts, setFeaturedProducts] = useState([]);
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         const response = await api.get('/admin/products');
-        setProducts(response.data.products);
+        setProducts(response.data?.products || []);
         // Extract currently featured products
-        const featured = response.data.products
-          .filter(product => product.isFeatured)
-          .map(product => product._id);
+        const featured = Array.isArray(response.data?.products) ? 
+          response.data.products
+            .filter(product => product.isFeatured)
+            .map(product => product._id) : 
+          [];
         setFeaturedProducts(featured);
       } catch (error) {
         setError('Failed to load products');
@@ -573,7 +585,7 @@ const ProductsList = () => {
               </tr>
             </thead>
             <tbody>
-              {products.map(product => (
+              {Array.isArray(products) && products.map(product => (
                 <tr key={product._id}>
                   <td>
                     <img 
@@ -672,6 +684,11 @@ const ProductsList = () => {
                   </td>
                 </tr>
               ))}
+              {(!Array.isArray(products) || products.length === 0) && (
+                <tr>
+                  <td colSpan="7" className="text-center">No products found</td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

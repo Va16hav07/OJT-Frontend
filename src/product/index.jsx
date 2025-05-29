@@ -85,7 +85,8 @@ const Product = () => {
     productsPerPage: parseInt(limitParam)
   });
   
-  const { wishlistItems, updateWishlist } = useContext(WishlistContext);
+  // Add default empty arrays to prevent "undefined.map()" errors
+  const { wishlistItems = [], updateWishlist } = useContext(WishlistContext) || {};
 
   useEffect(() => {
     const token = localStorage.getItem('authToken');
@@ -128,6 +129,7 @@ const Product = () => {
           throw new Error(data.message || 'Failed to load products');
         }
 
+        // Ensure products is always an array even if the API returns null/undefined
         setProducts(data.products || []);
         setPagination(prev => ({
           ...prev,
@@ -314,7 +316,7 @@ const Product = () => {
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {products.map((product) => {
                   const isInWishlist = wishlistItems.some(item => 
                     item._id === product._id || 
