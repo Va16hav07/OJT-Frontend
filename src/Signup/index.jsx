@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import GoogleLoginButton from '../components/GoogleLoginButton'
+import { ArrowLeft } from 'lucide-react'
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -176,8 +177,18 @@ const Signup = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-16 px-4" style={{ fontFamily: "'Poppins', sans-serif" }}>
-      <h1 className="text-center text-4xl  mb-1">Create an account</h1>
+    <div className="min-h-screen bg-gray-50 pt-8 px-4" style={{ fontFamily: "'Poppins', sans-serif" }}>
+      {/* Back Button */}
+      <div className="max-w-2xl mx-auto mb-4">
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors font-medium"
+        >
+          <ArrowLeft size={18} /> Back
+        </button>
+      </div>
+      
+      <h1 className="text-center text-4xl mb-1">Create an account</h1>
       <p className="text-center text-lg mb-8">Already have an account? <Link to="/login" className="text-blue-600 hover:underline">Login</Link></p>
       
       <div className="flex items-center justify-center px-4">

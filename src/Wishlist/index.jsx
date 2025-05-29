@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import { Heart, ArrowLeft, ShoppingCart } from 'lucide-react';
 import Header from '../header';
 import Footer from '../Footer';
 import './wishlist.css';
@@ -110,49 +111,102 @@ const Wishlist = () => {
     }
 
     return (
-        <div className="flex flex-col min-h-screen">
+        <div className="flex flex-col min-h-screen bg-gray-50">
             <Header />
-            <div className="flex-grow container mx-auto px-4 py-8">
-                <h1 className="text-3xl font-bold mb-8">My Wishlist</h1>
+            <div className="max-w-6xl mx-auto px-4 py-8 flex-grow w-full">
+                {/* Back Button */}
+                <button
+                    onClick={() => navigate('/product')}
+                    className="mb-6 flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors font-medium"
+                >
+                    <ArrowLeft size={18} /> Back to Products
+                </button>
+                
+                {/* Page Title */}
+                <div className="text-center mb-8">
+                    <h1 className="text-3xl font-bold text-gray-800">My Wishlist</h1>
+                    <div className="mt-2 w-24 h-1 bg-blue-600 mx-auto rounded-full"></div>
+                    <p className="text-gray-500 mt-3">Items you've saved for later</p>
+                </div>
+
                 {wishlistItems.length === 0 ? (
-                    <div className="text-center py-12">
-                        <p className="text-gray-600 text-lg">Your wishlist is empty</p>
+                    <div className="bg-white rounded-xl shadow-sm p-12 text-center">
+                        <div className="w-20 h-20 mx-auto mb-4 text-gray-300">
+                            <Heart size={80} strokeWidth={1.5} />
+                        </div>
+                        <p className="text-gray-600 text-lg mb-6">Your wishlist is empty</p>
+                        <button 
+                            onClick={() => navigate('/product')}
+                            className="bg-black text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium"
+                        >
+                            Browse Products
+                        </button>
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {wishlistItems.map((item) => (
-                            <div key={item._id || item.id} className="bg-white rounded-lg shadow-md overflow-hidden">
-                                <img 
-                                    src={item.image_url || (Array.isArray(item.images) ? item.images[0] : item.images) || "https://via.placeholder.com/150"} 
-                                    alt={item.name} 
-                                    onClick={() => handleProductClick(item._id || item.id)}
-                                    className="w-full h-48 object-cover cursor-pointer hover:opacity-90 transition-opacity"
-                                />
-                                <div className="p-4">
-                                    <h3 
+                            <div 
+                                key={item._id || item.id} 
+                                className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all"
+                            >
+                                <div className="relative h-48 overflow-hidden">
+                                    <img 
+                                        src={item.image_url || (Array.isArray(item.images) ? item.images[0] : item.images) || "https://via.placeholder.com/300x200?text=No+Image"}
+                                        alt={item.name} 
                                         onClick={() => handleProductClick(item._id || item.id)}
-                                        className="text-lg font-semibold mb-2 cursor-pointer hover:text-blue-600"
+                                        className="w-full h-full object-cover cursor-pointer hover:scale-105 transition-transform duration-300"
+                                    />
+                                    {item.category && (
+                                        <span className="absolute top-2 left-2 bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded">
+                                            {item.category}
+                                        </span>
+                                    )}
+                                    <button 
+                                        onClick={() => removeFromWishlist(item._id || item.id)}
+                                        className="absolute top-2 right-2 p-1.5 rounded-full bg-white/80 hover:bg-white text-red-500 shadow-sm"
+                                        title="Remove from wishlist"
                                     >
-                                        {item.name}
-                                    </h3>
-                                    <p className="text-xl font-bold text-gray-900 mb-4">₹{item.price}</p>
-                                    <div className="flex gap-2">
+                                        <Heart size={18} fill="currentColor" />
+                                    </button>
+                                </div>
+                                
+                                <div className="p-5">
+                                    <div 
+                                        onClick={() => handleProductClick(item._id || item.id)}
+                                        className="cursor-pointer"
+                                    >
+                                        <h3 className="text-lg font-medium mb-2 line-clamp-2 hover:text-blue-600 transition-colors">{item.name}</h3>
+                                    </div>
+                                    
+                                    <div className="flex items-end justify-between mt-4">
+                                        <div>
+                                            <p className="text-xs text-gray-500 mb-1">Price</p>
+                                            <p className="text-xl font-bold text-black">₹{item.price}</p>
+                                        </div>
+                                        
                                         <button 
-                                            className="flex-1 bg-black text-white px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
+                                            className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors text-sm"
                                             onClick={() => handleRentNow(item)}
                                         >
+                                            <ShoppingCart size={16} />
                                             Rent Now
-                                        </button>
-                                        <button 
-                                            className="flex-1 border border-red-500 text-red-500 px-4 py-2 rounded-lg hover:bg-red-50 transition-colors"
-                                            onClick={() => removeFromWishlist(item._id || item.id)}
-                                        >
-                                            Remove
                                         </button>
                                     </div>
                                 </div>
                             </div>
                         ))}
+                    </div>
+                )}
+                
+                {wishlistItems.length > 0 && (
+                    <div className="text-center mt-10">
+                        <Link 
+                            to="/product" 
+                            className="text-blue-600 hover:text-blue-800 inline-flex items-center gap-2"
+                        >
+                            <span>Continue Shopping</span>
+                            <ArrowLeft size={16} className="transform rotate-180" />
+                        </Link>
                     </div>
                 )}
             </div>

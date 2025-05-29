@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { FaEdit, FaMapMarkerAlt, FaCreditCard } from 'react-icons/fa';
-import { MdClose } from 'react-icons/md';
+import { FaEdit, FaMapMarkerAlt, FaCreditCard, FaTimes, FaHome, FaBuilding } from 'react-icons/fa';
+import { ArrowLeft } from 'lucide-react';
 import Header from "../header";
 import Footer from "../Footer";
 import { useNavigate } from 'react-router-dom';
@@ -449,279 +449,413 @@ const Checkout = () => {
 
   if (error) {
     return (
-      <>
+      <div className="flex flex-col min-h-screen bg-gray-50">
         <Header />
-        <div className="min-h-screen p-8 flex flex-col justify-center items-center">
-          <div className="bg-red-100 p-4 rounded-md mb-4">
-            <p className="text-red-700">{error}</p>
+        <div className="max-w-6xl mx-auto px-4 py-8 flex-grow w-full flex flex-col justify-center items-center">
+          <div className="bg-red-50 border border-red-200 text-red-600 rounded-xl p-8 max-w-lg w-full text-center">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto mb-4 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <h2 className="text-xl font-bold mb-2">Error</h2>
+            <p className="mb-6">{error}</p>
+            <button 
+              className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
+              onClick={() => navigate('/')}
+            >
+              Return to Home
+            </button>
           </div>
-          <button 
-            className="px-6 py-2 bg-black text-white rounded"
-            onClick={() => navigate('/')}
-          >
-            Return to Home
-          </button>
         </div>
         <Footer />
-      </>
+      </div>
     );
   }
 
   return (
-    <>
+    <div className="flex flex-col min-h-screen bg-gray-50">
       <Header />
-      <div className="min-h-screen p-8 bg-white flex flex-col justify-center items-center">
-        <div className="w-full max-w-3xl">
-          {/* Step Header */}
-          <div className="flex items-center justify-between w-full mb-8 relative">
+      <div className="max-w-6xl mx-auto px-4 py-8 flex-grow w-full">
+        {/* Back Button */}
+        <button
+          onClick={() => navigate('/product')}
+          className="mb-6 flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors font-medium"
+        >
+          <ArrowLeft size={18} /> Back to Products
+        </button>
+        
+        {/* Page Title */}
+        <div className="text-center mb-12">
+          <h1 className="text-3xl font-bold text-gray-800">Checkout</h1>
+          <div className="mt-2 w-24 h-1 bg-blue-600 mx-auto rounded-full"></div>
+          <p className="text-gray-500 mt-3">Complete your rental order</p>
+        </div>
+
+        {/* Checkout Process Steps - Without horizontal line */}
+        <div className="relative flex justify-center items-center mb-12">
+          <div className="relative z-10 flex justify-between w-full max-w-md">
             {/* Step 1 */}
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-full bg-black flex items-center justify-center z-10">
-                <FaMapMarkerAlt className="text-xs text-white" />
+            <div className="flex flex-col items-center">
+              <div className="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center mb-2">
+                <FaMapMarkerAlt size={18} />
               </div>
-              <div>
-                <p className="text-xs text-black">Step 1</p>
-                <p className="text-sm font-semibold text-black">Address</p>
-              </div>
+              <p className="text-sm font-medium text-black">Address</p>
             </div>
-            
-            {/* Connecting Line */}
-            <div className="h-0.5 bg-gray-300 absolute top-3 left-1/4 right-1/4 z-0"></div>
             
             {/* Step 2 */}
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center z-10">
-                <FaCreditCard className="text-xs text-gray-500" />
+            <div className="flex flex-col items-center">
+              <div className="w-10 h-10 rounded-full bg-gray-300 text-gray-500 flex items-center justify-center mb-2">
+                <FaCreditCard size={18} />
               </div>
-              <div>
-                <p className="text-xs text-gray-500">Step 2</p>
-                <p className="text-sm font-semibold text-gray-400">Payment</p>
-              </div>
+              <p className="text-sm font-medium text-gray-500">Payment</p>
             </div>
           </div>
+        </div>
 
-          <div className="mb-8">
-            <h1 className="text-2xl font-bold">Checkout</h1>
-          </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Main Content - Addresses */}
+          <div className="lg:col-span-2">
+            <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-6">
+              <div className="p-6 border-b border-gray-100">
+                <div className="flex justify-between items-center">
+                  <h2 className="text-xl font-semibold text-gray-800">Delivery Address</h2>
+                  <button 
+                    className="px-4 py-2 flex items-center gap-2 text-sm bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
+                    onClick={() => setShowAddressModal(true)}
+                  >
+                    <span>Add New Address</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
 
-          <div className="mb-8">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold">Delivery Address</h2>
-              <button 
-                className="text-blue-600 text-sm"
-                onClick={() => setShowAddressModal(true)}
-              >
-                + Add New Address
-              </button>
-            </div>
-
-            {addresses.length > 0 ? (
-              addresses.map((addr) => (
-                <div
-                  key={addr.id}
-                  className={`flex items-start justify-between p-4 mb-4 rounded-lg border ${
-                    selectedAddress === addresses.findIndex(a => a.id === addr.id) ? "border-black" : "border-gray-300"
-                  } bg-gray-50`}
-                >
-                  <div className="flex items-start gap-3">
-                    <input
-                      type="radio"
-                      checked={selectedAddress === addresses.findIndex(a => a.id === addr.id)}
-                      onChange={() => setSelectedAddress(addresses.findIndex(a => a.id === addr.id))}
-                      className="mt-1"
-                    />
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <p className="font-semibold">{addr.label}</p>
-                        <span className="text-xs px-2 py-0.5 bg-black text-white rounded">
-                          {addr.type.toUpperCase()}
-                        </span>
+              <div className="p-6">
+                {addresses.length > 0 ? (
+                  <div className="space-y-4">
+                    {addresses.map((addr, index) => (
+                      <div
+                        key={addr.id || index}
+                        className={`border rounded-lg transition-all ${
+                          selectedAddress === index 
+                            ? "border-blue-600 bg-blue-50" 
+                            : "border-gray-200 hover:border-gray-300"
+                        }`}
+                      >
+                        <label className="flex cursor-pointer p-4">
+                          <div className="flex items-start gap-4 flex-1">
+                            <input
+                              type="radio"
+                              name="deliveryAddress"
+                              checked={selectedAddress === index}
+                              onChange={() => setSelectedAddress(index)}
+                              className="mt-1.5"
+                            />
+                            <div className="flex-1">
+                              <div className="flex flex-wrap items-center gap-2 mb-1">
+                                <span className="font-medium text-gray-900">{addr.label}</span>
+                                <span className={`inline-block px-2 py-1 text-xs rounded-full ${
+                                  addr.type === 'Home' 
+                                    ? 'bg-green-100 text-green-800' 
+                                    : addr.type === 'Office'
+                                      ? 'bg-blue-100 text-blue-800'
+                                      : 'bg-gray-100 text-gray-800'
+                                }`}>
+                                  {addr.type}
+                                </span>
+                              </div>
+                              <p className="text-gray-600 text-sm mb-1">{addr.address}</p>
+                              <p className="text-gray-500 text-sm">
+                                <span className="font-medium">Phone:</span> {addr.phone}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex gap-2">
+                            <button 
+                              type="button"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                handleEditAddress(addr.id);
+                              }}
+                              className="p-1.5 text-gray-500 hover:text-blue-600 rounded-full hover:bg-blue-50 transition-colors"
+                              title="Edit address"
+                            >
+                              <FaEdit size={18} />
+                            </button>
+                            <button 
+                              type="button"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                handleRemoveAddress(addr.id);
+                              }}
+                              className="p-1.5 text-gray-500 hover:text-red-600 rounded-full hover:bg-red-50 transition-colors"
+                              title="Remove address"
+                            >
+                              <FaTimes size={18} />
+                            </button>
+                          </div>
+                        </label>
                       </div>
-                      <p className="text-gray-700 text-sm mt-1">{addr.address}</p>
-                      <p className="text-gray-600 text-sm">{addr.phone}</p>
-                    </div>
+                    ))}
                   </div>
-                  <div className="flex gap-4 text-gray-500">
-                    <FaEdit 
-                      className="cursor-pointer" 
-                      onClick={() => handleEditAddress(addr.id)}
-                    />
-                    <MdClose 
-                      className="cursor-pointer" 
-                      onClick={() => handleRemoveAddress(addr.id)}
-                    />
+                ) : (
+                  <div className="text-center py-12 border-2 border-dashed border-gray-300 rounded-lg">
+                    <div className="w-16 h-16 mx-auto mb-4 text-gray-400">
+                      <FaMapMarkerAlt size={64} />
+                    </div>
+                    <h3 className="text-lg font-medium text-gray-600 mb-2">No addresses found</h3>
+                    <p className="text-gray-500 mb-6">Please add a delivery address to continue</p>
+                    <button 
+                      className="px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
+                      onClick={() => setShowAddressModal(true)}
+                    >
+                      Add New Address
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Order Summary */}
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-xl shadow-sm overflow-hidden sticky top-8">
+              <div className="p-6 border-b border-gray-100">
+                <h2 className="text-xl font-semibold text-gray-800">Order Summary</h2>
+              </div>
+              
+              <div className="p-6">
+                <div className="space-y-4 mb-6">
+                  {orderSummary.items.map((item, index) => (
+                    <div key={index} className="flex justify-between pb-4 border-b border-gray-100 last:border-0">
+                      <div>
+                        <p className="font-medium text-gray-800">{item.name}</p>
+                        <p className="text-sm text-gray-500">{item.days} {item.days > 1 ? 'days' : 'day'} rental</p>
+                      </div>
+                      <p className="font-medium">₹{item.price.toFixed(2)}</p>
+                    </div>
+                  ))}
+                </div>
+                
+                <div className="space-y-2 pb-4">
+                  <div className="flex justify-between text-gray-600">
+                    <p>Subtotal</p>
+                    <p>₹{orderSummary.subtotal.toFixed(2)}</p>
+                  </div>
+                  <div className="flex justify-between text-gray-600">
+                    <p>Tax (8%)</p>
+                    <p>₹{orderSummary.tax.toFixed(2)}</p>
                   </div>
                 </div>
-              ))
-            ) : (
-              <div className="text-center py-6 border rounded-lg border-dashed">
-                <p className="text-gray-500">No addresses available. Please add a delivery address.</p>
+                
+                <div className="border-t border-gray-200 pt-4 mt-2">
+                  <div className="flex justify-between font-bold text-lg">
+                    <p>Total</p>
+                    <p>₹{orderSummary.total.toFixed(2)}</p>
+                  </div>
+                </div>
+                
                 <button 
-                  className="mt-2 text-blue-600 underline"
-                  onClick={() => setShowAddressModal(true)}
+                  className="w-full mt-6 px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed flex justify-center items-center gap-2"
+                  onClick={handleProceedToPayment}
+                  disabled={loading || addresses.length === 0}
                 >
-                  Add Address
+                  {loading ? (
+                    <>
+                      <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      <span>Processing...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Proceed to Payment</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                      </svg>
+                    </>
+                  )}
                 </button>
               </div>
-            )}
-          </div>
-
-          <div className="border rounded-lg p-4 mb-6">
-            <h3 className="font-semibold mb-3">Order Summary</h3>
-            <div className="space-y-3">
-              {orderSummary.items.map((item, index) => (
-                <div key={index} className="flex justify-between text-sm">
-                  <div>
-                    <p className="font-medium">{item.name}</p>
-                    <p className="text-gray-600">{item.days} days rental</p>
-                  </div>
-                  <p>₹{item.price.toFixed(2)}</p>
-                </div>
-              ))}
             </div>
-            <div className="border-t mt-4 pt-3">
-              <div className="flex justify-between text-sm">
-                <p>Subtotal</p>
-                <p>₹{orderSummary.subtotal.toFixed(2)}</p>
-              </div>
-              <div className="flex justify-between text-sm mt-1">
-                <p>Tax</p>
-                <p>₹{orderSummary.tax.toFixed(2)}</p>
-              </div>
-              <div className="flex justify-between font-semibold text-base mt-3">
-                <p>Total</p>
-                <p>₹{orderSummary.total.toFixed(2)}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex justify-end mt-6">
-            <button 
-              className="px-6 py-2 bg-black text-white rounded"
-              onClick={handleProceedToPayment}
-              disabled={loading || addresses.length === 0}
-            >
-              {loading ? "Processing..." : "Proceed to Payment"}
-            </button>
           </div>
         </div>
       </div>
 
       {/* Address Modal */}
       {showAddressModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-6 rounded-lg w-full max-w-md">
-            <h3 className="text-lg font-bold mb-4">
-              {newAddress.id !== undefined ? "Edit Address" : "Add New Address"}
-            </h3>
-            
-            {addressError && (
-              <div className="bg-red-100 text-red-700 p-2 rounded mb-3 text-sm">
-                {addressError}
-              </div>
-            )}
-            
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">Name</label>
-                <input
-                  type="text"
-                  name="label"
-                  value={newAddress.label}
-                  onChange={handleAddressChange}
-                  placeholder="John Doe"
-                  className={`w-full p-2 border rounded-md ${
-                    !addressValidation.label.isValid ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                  maxLength={50}
-                />
-                {!addressValidation.label.isValid && (
-                  <p className="text-red-500 text-sm mt-1">{addressValidation.label.message}</p>
-                )}
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium mb-1">Address Type</label>
-                <select
-                  name="type"
-                  value={newAddress.type}
-                  onChange={handleAddressChange}
-                  className="w-full p-2 border rounded-md border-gray-300"
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex justify-between items-center">
+                <h3 className="text-xl font-semibold">
+                  {newAddress.editingId ? "Edit Address" : "Add New Address"}
+                </h3>
+                <button 
+                  onClick={() => {
+                    setShowAddressModal(false);
+                    setAddressError("");
+                    setNewAddress({
+                      label: "",
+                      type: "Home",
+                      address: "",
+                      phone: ""
+                    });
+                  }}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
                 >
-                  <option value="Home">Home</option>
-                  <option value="Office">Office</option>
-                  <option value="Other">Other</option>
-                </select>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium mb-1">Full Address</label>
-                <textarea
-                  name="address"
-                  value={newAddress.address}
-                  onChange={handleAddressChange}
-                  placeholder="Street, City, State, ZIP Code"
-                  className={`w-full p-2 border rounded-md ${
-                    !addressValidation.address.isValid ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                  rows={3}
-                  maxLength={200}
-                ></textarea>
-                {!addressValidation.address.isValid && (
-                  <p className="text-red-500 text-sm mt-1">{addressValidation.address.message}</p>
-                )}
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium mb-1">Contact Phone</label>
-                <input
-                  type="tel"
-                  name="phone"
-                  value={newAddress.phone}
-                  onChange={handleAddressChange}
-                  placeholder="9876543210"
-                  className={`w-full p-2 border rounded-md ${
-                    !addressValidation.phone.isValid ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                  maxLength={15}
-                />
-                {!addressValidation.phone.isValid && (
-                  <p className="text-red-500 text-sm mt-1">{addressValidation.phone.message}</p>
-                )}
-                <p className="text-gray-500 text-xs mt-1">Enter 10-digit mobile number</p>
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
               </div>
             </div>
             
-            <div className="flex justify-end gap-3 mt-6">
-              <button 
-                className="px-4 py-2 border rounded"
-                onClick={() => {
-                  setShowAddressModal(false);
-                  setAddressError("");
-                  setNewAddress({
-                    label: "",
-                    type: "Home",
-                    address: "",
-                    phone: ""
-                  });
-                }}
-              >
-                Cancel
-              </button>
-              <button 
-                className="px-4 py-2 bg-black text-white rounded"
-                onClick={newAddress.editingId ? handleUpdateAddress : handleAddAddress}
-                disabled={loading}
-              >
-                {loading ? "Saving..." : (newAddress.editingId ? "Update" : "Add")} Address
-              </button>
+            <div className="p-6">
+              {addressError && (
+                <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg mb-4 text-sm">
+                  {addressError}
+                </div>
+              )}
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-gray-700 text-sm font-medium mb-2">Name/Label</label>
+                  <input
+                    type="text"
+                    name="label"
+                    value={newAddress.label}
+                    onChange={handleAddressChange}
+                    placeholder="John Doe / Home / Office"
+                    className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                      !addressValidation.label.isValid ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                  />
+                  {!addressValidation.label.isValid && (
+                    <p className="text-red-500 text-xs mt-1">{addressValidation.label.message}</p>
+                  )}
+                </div>
+                
+                <div>
+                  <label className="block text-gray-700 text-sm font-medium mb-2">Address Type</label>
+                  <div className="grid grid-cols-3 gap-3">
+                    <label className={`flex items-center justify-center gap-2 p-3 border rounded-lg cursor-pointer ${newAddress.type === 'Home' ? 'bg-blue-50 border-blue-500 text-blue-700' : 'border-gray-300'}`}>
+                      <input
+                        type="radio"
+                        name="type"
+                        value="Home"
+                        checked={newAddress.type === 'Home'}
+                        onChange={handleAddressChange}
+                        className="sr-only"
+                      />
+                      <FaHome size={18} />
+                      <span>Home</span>
+                    </label>
+                    <label className={`flex items-center justify-center gap-2 p-3 border rounded-lg cursor-pointer ${newAddress.type === 'Office' ? 'bg-blue-50 border-blue-500 text-blue-700' : 'border-gray-300'}`}>
+                      <input
+                        type="radio"
+                        name="type"
+                        value="Office"
+                        checked={newAddress.type === 'Office'}
+                        onChange={handleAddressChange}
+                        className="sr-only"
+                      />
+                      <FaBuilding size={18} />
+                      <span>Office</span>
+                    </label>
+                    <label className={`flex items-center justify-center gap-2 p-3 border rounded-lg cursor-pointer ${newAddress.type === 'Other' ? 'bg-blue-50 border-blue-500 text-blue-700' : 'border-gray-300'}`}>
+                      <input
+                        type="radio"
+                        name="type"
+                        value="Other"
+                        checked={newAddress.type === 'Other'}
+                        onChange={handleAddressChange}
+                        className="sr-only"
+                      />
+                      <FaMapMarkerAlt size={18} />
+                      <span>Other</span>
+                    </label>
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="block text-gray-700 text-sm font-medium mb-2">Full Address</label>
+                  <textarea
+                    name="address"
+                    value={newAddress.address}
+                    onChange={handleAddressChange}
+                    placeholder="Street, City, State, ZIP Code"
+                    className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                      !addressValidation.address.isValid ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                    rows={3}
+                  ></textarea>
+                  {!addressValidation.address.isValid && (
+                    <p className="text-red-500 text-xs mt-1">{addressValidation.address.message}</p>
+                  )}
+                </div>
+                
+                <div>
+                  <label className="block text-gray-700 text-sm font-medium mb-2">Contact Phone</label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                      <span className="text-gray-500">+91</span>
+                    </div>
+                    <input
+                      type="tel"
+                      name="phone"
+                      value={newAddress.phone}
+                      onChange={handleAddressChange}
+                      placeholder="9876543210"
+                      className={`w-full p-3 pl-12 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                        !addressValidation.phone.isValid ? 'border-red-500' : 'border-gray-300'
+                      }`}
+                    />
+                  </div>
+                  {!addressValidation.phone.isValid && (
+                    <p className="text-red-500 text-xs mt-1">{addressValidation.phone.message}</p>
+                  )}
+                </div>
+              </div>
+            </div>
+            
+            <div className="p-6 bg-gray-50 border-t border-gray-200">
+              <div className="flex justify-end gap-3">
+                <button 
+                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"
+                  onClick={() => {
+                    setShowAddressModal(false);
+                    setAddressError("");
+                    setNewAddress({
+                      label: "",
+                      type: "Home",
+                      address: "",
+                      phone: ""
+                    });
+                  }}
+                >
+                  Cancel
+                </button>
+                <button 
+                  className="px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors disabled:bg-gray-400"
+                  onClick={newAddress.editingId ? handleUpdateAddress : handleAddAddress}
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <span className="flex items-center gap-2">
+                      <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      <span>Saving...</span>
+                    </span>
+                  ) : (
+                    newAddress.editingId ? "Update Address" : "Save Address"
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         </div>
       )}
 
       <Footer />
-    </>
+    </div>
   );
 };
 

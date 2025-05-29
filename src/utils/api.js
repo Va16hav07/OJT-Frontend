@@ -24,14 +24,13 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   response => response,
   error => {
-    // Check if the error is about a banned account
     if (error.response && 
         error.response.status === 403 && 
         error.response.data && 
         error.response.data.message && 
         error.response.data.message.includes('banned')) {
       
-      // Clear user data
+      // Clear user data only for banned users
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       localStorage.removeItem('authToken');
@@ -44,18 +43,22 @@ api.interceptors.response.use(
       window.location.href = '/';
     } else if (error.response && error.response.status === 401) {
       // Handle unauthorized access (token expired/invalid)
-      console.log('Unauthorized access - redirecting to login');
+      console.log('Unauthorized access detected');
       
-      // Only clear tokens and redirect for non-admin routes
-      // or if specifically requested by the server
-      if (!error.config.url.includes('/admin/') || 
-          (error.response.data && error.response.data.clearAuth)) {
+      // Only clear tokens and redirect if specifically requested by the server
+      // or if it's a critical authentication failure
+      if (error.response.data && error.response.data.clearAuth === true) {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         localStorage.removeItem('authToken');
         localStorage.removeItem('userData');
         window.location.href = '/login';
       }
+      // For admin routes, be more conservative
+      else if (error.config.url.includes('/admin/')) {
+        console.log('Admin route 401 - not clearing auth automatically');
+      }
+      // For other 401s, don't automatically clear auth - let components handle it
     }
     
     return Promise.reject(error);

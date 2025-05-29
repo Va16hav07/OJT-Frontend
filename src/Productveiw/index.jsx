@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Star, StarHalf, Heart } from 'lucide-react';
+import { Star, StarHalf, Heart, ArrowLeft, ChevronRight, ChevronLeft, MapPin, User, Package, Tag } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Header from '../header';
@@ -141,8 +141,10 @@ const ProductVeiw = () => {
         setWishlistCount(response.data.length);
       } catch (error) {
         console.error('Error checking wishlist status:', error.response?.data || error.message);
-        if (error.response?.status === 401) {
-          console.log('Token expired or invalid, redirecting to login');
+        // Don't automatically logout on wishlist check failures
+        // Only logout if explicitly told by server or on critical auth failures
+        if (error.response?.status === 401 && error.response?.data?.clearAuth === true) {
+          console.log('Server requested auth clearing');
           localStorage.removeItem('authToken');
           setIsLoggedIn(false);
           navigate('/login');
@@ -153,7 +155,7 @@ const ProductVeiw = () => {
     if (product?._id) {
       checkWishlistStatus();
     }
-  }, [product?._id]);
+  }, [product?._id, navigate]);
 
   const handleSubmitReview = async (e) => {
     e.preventDefault();
@@ -315,7 +317,10 @@ const ProductVeiw = () => {
       <div className="flex flex-col min-h-screen">
         <Header />
         <div className="flex-grow flex justify-center items-center">
-          <p className="text-lg font-medium">Loading product details...</p>
+          <div className="text-center">
+            <div className="inline-block h-10 w-10 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent"></div>
+            <p className="mt-4 text-lg font-medium text-gray-700">Loading product details...</p>
+          </div>
         </div>
         <Footer />
       </div>
@@ -347,297 +352,399 @@ const ProductVeiw = () => {
   }
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-gray-50">
       <Header />
-      <div className="max-w-5xl mx-auto px-4 py-8 flex-grow">
+      <div className="max-w-6xl mx-auto px-4 py-8 flex-grow w-full">
         <button
           onClick={() => navigate('/product')}
-          className="mb-6 flex items-center gap-2 text-gray-600 hover:text-black"
+          className="mb-6 flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors font-medium"
         >
-          <span>←</span> Back to Products
+          <ArrowLeft size={18} /> Back to Products
         </button>
-        <div className="grid md:grid-cols-2 gap-8">
-          <div className="space-y-4">
-            {/* Main Image with Navigation */}
-            <div className="relative">
-              <img
-                src={Array.isArray(product.images) ? 
-                  product.images[currentImageIndex] : 
-                  product.images || "https://via.placeholder.com/500x300?text=No+Image+Available"
-                }
-                alt={`${product.name} - Image ${currentImageIndex + 1}`}
-                className="w-full h-[400px] object-contain rounded-xl shadow-md"
-              />
-              
-              {Array.isArray(product.images) && product.images.length > 1 && (
-                <>
-                  <button 
-                    onClick={prevImage}
-                    className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full"
-                  >
-                    ←
-                  </button>
-                  <button 
-                    onClick={nextImage}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full"
-                  >
-                    →
-                  </button>
-                </>
-              )}
-            </div>
 
-            {/* Thumbnail Strip */}
-            {Array.isArray(product.images) && product.images.length > 1 && (
-              <div className="flex gap-2 overflow-x-auto pb-2">
-                {product.images.map((img, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setCurrentImageIndex(idx)}
-                    className={`flex-shrink-0 ${currentImageIndex === idx ? 'border-2 border-black' : 'border border-gray-200'}`}
-                  >
-                    <img
-                      src={img}
-                      alt={`${product.name} thumbnail ${idx + 1}`}
-                      className="w-16 h-16 object-cover rounded"
-                    />
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Rest of product details */}
-          <div>
-            <div className="flex justify-between items-start">
-              <h1 className="text-3xl font-bold mb-4">{product.name}</h1>
-              <button
-                onClick={toggleWishlist}
-                className={`p-2 rounded-full transition-colors ${
-                  isInWishlist ? 'text-red-500 hover:text-red-600' : 'text-gray-400 hover:text-red-400'
-                }`}
-                title={isInWishlist ? "Remove from wishlist" : "Add to wishlist"}
-              >
-                <Heart size={24} fill={isInWishlist ? 'currentColor' : 'none'} />
-              </button>
-            </div>
-            <div className="mb-4">
-              <p className="text-xl font-semibold text-gray-800">Rental Pricing:</p>
-              {isOwnProduct ? (
-                <div className="text-red-500 mt-2">
-                  You cannot rent your own product
-                </div>
-              ) : (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2">
-                  {product.renting && (
-                    <>
-                      {product.renting.hours && (
-                        <div 
-                          className={`border rounded-lg p-2 text-center cursor-pointer ${
-                            selectedRental === 'hours' ? 'bg-black text-white' : ''
-                          }`}
-                          onClick={() => setSelectedRental('hours')}
-                        >
-                          <p className="font-semibold">₹{product.renting.hours}</p>
-                          <p className={`text-sm ${selectedRental === 'hours' ? '' : 'text-gray-500'}`}>per hour</p>
-                        </div>
-                      )}
-                      {product.renting.days && (
-                        <div 
-                          className={`border rounded-lg p-2 text-center cursor-pointer ${
-                            selectedRental === 'days' ? 'bg-black text-white' : ''
-                          }`}
-                          onClick={() => setSelectedRental('days')}
-                        >
-                          <p className="font-semibold">₹{product.renting.days}</p>
-                          <p className={`text-sm ${selectedRental === 'days' ? '' : 'text-gray-500'}`}>per day</p>
-                        </div>
-                      )}
-                      {product.renting.weeks && (
-                        <div 
-                          className={`border rounded-lg p-2 text-center cursor-pointer ${
-                            selectedRental === 'weeks' ? 'bg-black text-white' : ''
-                          }`}
-                          onClick={() => setSelectedRental('weeks')}
-                        >
-                          <p className="font-semibold">₹{product.renting.weeks}</p>
-                          <p className={`text-sm ${selectedRental === 'weeks' ? '' : 'text-gray-500'}`}>per week</p>
-                        </div>
-                      )}
-                      {product.renting.months && (
-                        <div 
-                          className={`border rounded-lg p-2 text-center cursor-pointer ${
-                            selectedRental === 'months' ? 'bg-black text-white' : ''
-                          }`}
-                          onClick={() => setSelectedRental('months')}
-                        >
-                          <p className="font-semibold">₹{product.renting.months}</p>
-                          <p className={`text-sm ${selectedRental === 'months' ? '' : 'text-gray-500'}`}>per month</p>
-                        </div>
-                      )}
-                    </>
-                  )}
-                  {!product.renting && (
-                    <div className="border rounded-lg p-2 text-center">
-                      <p className="font-semibold">${product.price}</p>
-                      <p className="text-sm text-gray-500">per day</p>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-            <div className="flex items-center gap-4 mb-4">
-              <button 
-                onClick={toggleWishlist}
-                className={`flex items-center gap-2 border px-4 py-2 rounded-lg transition-colors ${
-                  isInWishlist 
-                    ? 'bg-red-50 border-red-200 text-red-500 hover:bg-red-100' 
-                    : 'hover:bg-gray-100'
-                }`}
-              >
-                <Heart size={18} fill={isInWishlist ? 'currentColor' : 'none'} />
-                {isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'}
-              </button>
-              {!isOwnProduct && (
-                <button 
-                  className={`bg-black text-white px-4 py-2 rounded-lg ${
-                    isOwnProduct ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-90'
-                  }`}
-                  onClick={handleRentNow}
-                  disabled={isOwnProduct}
-                >
-                  Rent Now
-                </button>
-              )}
-            </div>
-            <div className="text-sm text-gray-600 mb-2"> Available for: {product.availability || 'Limited time'}</div>
-            <div className="text-sm text-gray-600 mb-2"> Location: {product.location || 'Not specified'}</div>
-            <div className="text-sm text-gray-600 mb-2"> Seller: {product.seller || 'Anonymous'}</div>
-            <div className="text-sm text-gray-600"> Category: {product.category || 'Uncategorized'}</div>
-          </div>
-        </div>
-
-        <div className="mt-12">
-          <h2 className="text-xl font-bold mb-2">Details</h2>
-          <p className="text-gray-700">
-            {product.description || 'No description available for this product.'}
-          </p>
-        </div>
-
-        <div className="mt-12">
-          <h2 className="text-xl font-bold mb-4">Reviews</h2>
-          
-          <div className="flex items-center gap-4 mb-4">
-            <div className="text-4xl font-bold">
-              {reviewStats ? reviewStats.averageRating : '0.0'}
-            </div>
-            <div className="text-yellow-500 flex gap-1">
-              {[...Array(5)].map((_, i) => {
-                if (!reviewStats) return <Star key={i} />;
+        {/* Product Overview Section */}
+        <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-8">
+          <div className="grid md:grid-cols-2 gap-0">
+            {/* Image Gallery */}
+            <div className="bg-white p-6 border-r border-gray-100">
+              {/* Main Image with Navigation */}
+              <div className="relative aspect-square">
+                <img
+                  src={Array.isArray(product.images) ? 
+                    product.images[currentImageIndex] : 
+                    product.images || "https://via.placeholder.com/500x300?text=No+Image+Available"
+                  }
+                  alt={`${product.name} - Image ${currentImageIndex + 1}`}
+                  className="w-full h-full object-contain rounded-lg"
+                />
                 
-                const rating = reviewStats.averageRating;
-                if (i < Math.floor(rating)) {
-                  return <Star key={i} fill="currentColor" />;
-                } else if (i === Math.floor(rating) && rating % 1 >= 0.5) {
-                  return <StarHalf key={i} fill="currentColor" />;
-                } else {
-                  return <Star key={i} />;
-                }
-              })}
-            </div>
-            <div className="text-gray-600">
-              {reviewStats ? reviewStats.totalReviews : 0} ratings
-            </div>
-          </div>
-          
-          <div className="space-y-1 text-sm text-gray-700">
-            {reviewStats && (
-              <>
-                <div>Excellent — {reviewStats.ratingDistribution['5']}</div>
-                <div>Good — {reviewStats.ratingDistribution['4']}</div>
-                <div>Average — {reviewStats.ratingDistribution['3']}</div>
-                <div>Below Average — {reviewStats.ratingDistribution['2']}</div>
-                <div>Poor — {reviewStats.ratingDistribution['1']}</div>
-              </>
-            )}
-          </div>
-          
-          <div className="mt-8 p-4 bg-gray-50 rounded-lg">
-            <h3 className="text-lg font-semibold mb-3">Write a Review</h3>
-            {!isLoggedIn && (
-              <p className="text-gray-600 mb-2">
-                Please <a href="/login" className="text-blue-600 hover:underline">login</a> to submit a review
-              </p>
-            )}
-            <form onSubmit={handleSubmitReview}>
-              <div className="mb-3">
-                <label className="block text-sm font-medium mb-1">Rating</label>
-                <div className="flex gap-2">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <button
-                      key={star}
-                      type="button"
-                      className="text-yellow-500"
-                      onClick={() => setNewReview({ ...newReview, rating: star })}
-                      disabled={!isLoggedIn}
+                {Array.isArray(product.images) && product.images.length > 1 && (
+                  <>
+                    <button 
+                      onClick={prevImage}
+                      className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 p-2 rounded-full shadow-md transition-all"
+                      aria-label="Previous image"
                     >
-                      <Star 
-                        size={24} 
-                        fill={star <= newReview.rating ? 'currentColor' : 'none'} 
+                      <ChevronLeft size={20} />
+                    </button>
+                    <button 
+                      onClick={nextImage}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 p-2 rounded-full shadow-md transition-all"
+                      aria-label="Next image"
+                    >
+                      <ChevronRight size={20} />
+                    </button>
+                  </>
+                )}
+              </div>
+
+              {/* Thumbnail Strip */}
+              {Array.isArray(product.images) && product.images.length > 1 && (
+                <div className="flex gap-2 mt-4 overflow-x-auto pb-2 justify-center">
+                  {product.images.map((img, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setCurrentImageIndex(idx)}
+                      className={`flex-shrink-0 rounded-md overflow-hidden transition-all ${
+                        currentImageIndex === idx 
+                          ? 'ring-2 ring-black ring-offset-2' 
+                          : 'ring-1 ring-gray-200 hover:ring-gray-400'
+                      }`}
+                      aria-label={`View image ${idx + 1}`}
+                    >
+                      <img
+                        src={img}
+                        alt={`${product.name} thumbnail ${idx + 1}`}
+                        className="w-16 h-16 object-cover"
                       />
                     </button>
                   ))}
                 </div>
-              </div>
-              <div className="mb-3">
-                <label className="block text-sm font-medium mb-1">Comment</label>
-                <textarea
-                  className="w-full p-2 border rounded-md"
-                  rows={4}
-                  value={newReview.comment}
-                  onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })}
-                  placeholder="Share your experience with this product"
-                  disabled={!isLoggedIn}
-                ></textarea>
-              </div>
-              {reviewError && (
-                <div className="text-red-500 text-sm mb-2">{reviewError}</div>
               )}
-              <button
-                type="submit"
-                className={`px-4 py-2 rounded-lg ${
-                  isLoggedIn
-                    ? "bg-black text-white hover:opacity-90"
-                    : "bg-gray-300 text-gray-600 cursor-not-allowed"
-                }`}
-                disabled={!isLoggedIn || isSubmitting}
-              >
-                {isSubmitting ? "Submitting..." : "Submit Review"}
-              </button>
-            </form>
+            </div>
+
+            {/* Product Info */}
+            <div className="p-8">
+              <div className="flex justify-between items-start">
+                <h1 className="text-3xl font-bold mb-3 text-gray-800">{product.name}</h1>
+                <button
+                  onClick={toggleWishlist}
+                  className={`p-2 rounded-full transition-colors ${
+                    isInWishlist ? 'text-red-500 hover:text-red-600' : 'text-gray-400 hover:text-red-400'
+                  }`}
+                  title={isInWishlist ? "Remove from wishlist" : "Add to wishlist"}
+                >
+                  <Heart size={24} fill={isInWishlist ? 'currentColor' : 'none'} />
+                </button>
+              </div>
+              
+              <div className="flex items-center gap-2 mb-4">
+                <div className="text-yellow-500 flex">
+                  {[...Array(Math.floor(reviewStats?.averageRating || 0))].map((_, i) => (
+                    <Star key={i} size={16} fill="currentColor" />
+                  ))}
+                  {reviewStats?.averageRating % 1 >= 0.5 && (
+                    <StarHalf size={16} fill="currentColor" />
+                  )}
+                  {[...Array(5 - Math.ceil(reviewStats?.averageRating || 0))].map((_, i) => (
+                    <Star key={i} size={16} />
+                  ))}
+                </div>
+                <span className="text-sm text-gray-600">
+                  {reviewStats?.averageRating?.toFixed(1) || '0.0'} ({reviewStats?.totalReviews || 0} reviews)
+                </span>
+              </div>
+              
+              <div className="mb-6">
+                <h2 className="text-lg font-semibold text-gray-800 mb-3">Rental Options</h2>
+                {isOwnProduct ? (
+                  <div className="bg-red-50 text-red-600 px-4 py-3 rounded-lg border border-red-200">
+                    <p className="font-medium">You cannot rent your own product</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    {product.renting && (
+                      <>
+                        {product.renting.hours && (
+                          <div 
+                            className={`border rounded-lg p-3 text-center cursor-pointer transition-all hover:shadow-md ${
+                              selectedRental === 'hours' 
+                                ? 'bg-black text-white border-black' 
+                                : 'hover:border-gray-500'
+                            }`}
+                            onClick={() => setSelectedRental('hours')}
+                          >
+                            <p className="text-lg font-bold">₹{product.renting.hours}</p>
+                            <p className={`text-sm ${selectedRental === 'hours' ? 'text-gray-300' : 'text-gray-500'}`}>
+                              per hour
+                            </p>
+                          </div>
+                        )}
+                        {product.renting.days && (
+                          <div 
+                            className={`border rounded-lg p-3 text-center cursor-pointer transition-all hover:shadow-md ${
+                              selectedRental === 'days' 
+                                ? 'bg-black text-white border-black' 
+                                : 'hover:border-gray-500'
+                            }`}
+                            onClick={() => setSelectedRental('days')}
+                          >
+                            <p className="text-lg font-bold">₹{product.renting.days}</p>
+                            <p className={`text-sm ${selectedRental === 'days' ? 'text-gray-300' : 'text-gray-500'}`}>
+                              per day
+                            </p>
+                          </div>
+                        )}
+                        {product.renting.weeks && (
+                          <div 
+                            className={`border rounded-lg p-3 text-center cursor-pointer transition-all hover:shadow-md ${
+                              selectedRental === 'weeks' 
+                                ? 'bg-black text-white border-black' 
+                                : 'hover:border-gray-500'
+                            }`}
+                            onClick={() => setSelectedRental('weeks')}
+                          >
+                            <p className="text-lg font-bold">₹{product.renting.weeks}</p>
+                            <p className={`text-sm ${selectedRental === 'weeks' ? 'text-gray-300' : 'text-gray-500'}`}>
+                              per week
+                            </p>
+                          </div>
+                        )}
+                        {product.renting.months && (
+                          <div 
+                            className={`border rounded-lg p-3 text-center cursor-pointer transition-all hover:shadow-md ${
+                              selectedRental === 'months' 
+                                ? 'bg-black text-white border-black' 
+                                : 'hover:border-gray-500'
+                            }`}
+                            onClick={() => setSelectedRental('months')}
+                          >
+                            <p className="text-lg font-bold">₹{product.renting.months}</p>
+                            <p className={`text-sm ${selectedRental === 'months' ? 'text-gray-300' : 'text-gray-500'}`}>
+                              per month
+                            </p>
+                          </div>
+                        )}
+                      </>
+                    )}
+                    {!product.renting && (
+                      <div className="border rounded-lg p-3 text-center">
+                        <p className="text-lg font-bold">₹{product.price}</p>
+                        <p className="text-sm text-gray-500">per day</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+              
+              <div className="flex flex-wrap items-center gap-4 mb-6">
+                {!isOwnProduct && (
+                  <button 
+                    className="bg-black text-white px-6 py-2 rounded-lg hover:bg-gray-800 transition-colors flex-grow md:flex-grow-0 font-medium"
+                    onClick={handleRentNow}
+                  >
+                    Rent Now
+                  </button>
+                )}
+                <button 
+                  onClick={toggleWishlist}
+                  className={`flex items-center justify-center gap-2 border px-4 py-2 rounded-lg transition-colors ${
+                    isInWishlist 
+                      ? 'bg-red-50 border-red-200 text-red-500 hover:bg-red-100' 
+                      : 'hover:bg-gray-100'
+                  }`}
+                >
+                  <Heart size={18} fill={isInWishlist ? 'currentColor' : 'none'} />
+                  {isInWishlist ? 'In Wishlist' : 'Add to Wishlist'}
+                </button>
+              </div>
+              
+              <div className="border-t border-b border-gray-100 py-4 mb-6">
+                <h2 className="text-lg font-semibold text-gray-800 mb-2">Product Information</h2>
+                <div className="grid grid-cols-1 gap-3">
+                  <div className="flex items-start gap-3 text-gray-700">
+                    <MapPin size={18} className="text-gray-400 mt-1 flex-shrink-0" />
+                    <span>Location: <span className="font-medium text-gray-900">{product.location || 'Not specified'}</span></span>
+                  </div>
+                  <div className="flex items-start gap-3 text-gray-700">
+                    <User size={18} className="text-gray-400 mt-1 flex-shrink-0" />
+                    <span>Seller: <span className="font-medium text-gray-900">{product.sellerName || 'Anonymous'}</span></span>
+                  </div>
+                  <div className="flex items-start gap-3 text-gray-700">
+                    <Package size={18} className="text-gray-400 mt-1 flex-shrink-0" />
+                    <span>Available for: <span className="font-medium text-gray-900">{product.availability || 'Limited time'}</span></span>
+                  </div>
+                  <div className="flex items-start gap-3 text-gray-700">
+                    <Tag size={18} className="text-gray-400 mt-1 flex-shrink-0" />
+                    <span>Category: <span className="font-medium text-gray-900">{product.category || 'Uncategorized'}</span></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Details Section */}
+        <div className="bg-white rounded-xl shadow-sm overflow-hidden p-8 mb-8">
+          <h2 className="text-xl font-bold mb-4 text-gray-800">Product Details</h2>
+          <div className="prose prose-blue max-w-none">
+            <p className="text-gray-700">
+              {product.description || 'No description available for this product.'}
+            </p>
+          </div>
+        </div>
+
+        {/* Reviews Section */}
+        <div className="bg-white rounded-xl shadow-sm overflow-hidden p-8">
+          <h2 className="text-xl font-bold mb-6 text-gray-800">Customer Reviews</h2>
+          
+          <div className="grid md:grid-cols-12 gap-6 mb-8">
+            {/* Review Summary */}
+            <div className="md:col-span-4 p-6 bg-gray-50 rounded-xl">
+              <div className="flex flex-col items-center">
+                <div className="text-5xl font-bold text-gray-800 mb-1">
+                  {reviewStats ? reviewStats.averageRating.toFixed(1) : '0.0'}
+                </div>
+                <div className="text-yellow-500 flex gap-1 mb-2">
+                  {[...Array(5)].map((_, i) => {
+                    if (!reviewStats) return <Star key={i} size={20} />;
+                    
+                    const rating = reviewStats.averageRating;
+                    if (i < Math.floor(rating)) {
+                      return <Star key={i} size={20} fill="currentColor" />;
+                    } else if (i === Math.floor(rating) && rating % 1 >= 0.5) {
+                      return <StarHalf key={i} size={20} fill="currentColor" />;
+                    } else {
+                      return <Star key={i} size={20} />;
+                    }
+                  })}
+                </div>
+                <div className="text-sm text-gray-600 mb-6">
+                  Based on {reviewStats ? reviewStats.totalReviews : 0} reviews
+                </div>
+                
+                {reviewStats && (
+                  <div className="w-full space-y-2">
+                    {[5, 4, 3, 2, 1].map((rating) => {
+                      const count = reviewStats.ratingDistribution[rating] || 0;
+                      const percentage = reviewStats.totalReviews 
+                        ? Math.round((count / reviewStats.totalReviews) * 100) 
+                        : 0;
+                      
+                      return (
+                        <div key={rating} className="flex items-center gap-2">
+                          <div className="text-sm text-gray-700 w-8">{rating} ★</div>
+                          <div className="flex-grow bg-gray-200 h-2 rounded-full overflow-hidden">
+                            <div 
+                              className="bg-yellow-400 h-full"
+                              style={{ width: `${percentage}%` }}
+                            ></div>
+                          </div>
+                          <div className="text-sm text-gray-700 w-8 text-right">{count}</div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            {/* Write Review Form */}
+            <div className="md:col-span-8">
+              <div className="border border-gray-200 rounded-xl p-6">
+                <h3 className="text-lg font-semibold mb-3 text-gray-800">Write a Review</h3>
+                {!isLoggedIn ? (
+                  <p className="text-gray-600 mb-4">
+                    Please <a href="/login" className="text-gray-800 hover:underline font-medium">login</a> to submit a review
+                  </p>
+                ) : (
+                  <form onSubmit={handleSubmitReview}>
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Your Rating</label>
+                      <div className="flex gap-2">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <button
+                            key={star}
+                            type="button"
+                            className="text-yellow-500 hover:scale-110 transition-transform"
+                            onClick={() => setNewReview({ ...newReview, rating: star })}
+                          >
+                            <Star 
+                              size={28} 
+                              fill={star <= newReview.rating ? 'currentColor' : 'none'} 
+                            />
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Your Review</label>
+                      <textarea
+                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        rows={4}
+                        value={newReview.comment}
+                        onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })}
+                        placeholder="Share your experience with this product"
+                      ></textarea>
+                    </div>
+                    {reviewError && (
+                      <div className="text-red-500 text-sm mb-4 p-3 bg-red-50 rounded-lg">
+                        {reviewError}
+                      </div>
+                    )}
+                    <button
+                      type="submit"
+                      className="px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-800 font-medium transition-colors"
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? (
+                        <span className="flex items-center gap-2">
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                          Submitting...
+                        </span>
+                      ) : (
+                        "Submit Review"
+                      )}
+                    </button>
+                  </form>
+                )}
+              </div>
+            </div>
           </div>
           
-          <div className="mt-6 space-y-6">
-            {reviews.length > 0 ? (
-              reviews.map((review) => (
-                <Review
-                  key={review._id}
-                  name={review.userName}
-                  date={formatDate(review.date)}
-                  rating={review.rating}
-                  comment={review.comment}
-                />
-              ))
-            ) : (
-              <p className="text-gray-500 italic">No reviews yet. Be the first to review this product!</p>
-            )}
+          {/* Customer Reviews List */}
+          <div className="mt-8">
+            <h3 className="font-semibold text-gray-800 mb-4">Customer Feedback</h3>
+            <div className="space-y-6">
+              {reviews.length > 0 ? (
+                reviews.map((review) => (
+                  <div key={review._id} className="border-b border-gray-100 pb-6">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-9 h-9 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-medium">
+                          {review.userName ? review.userName.charAt(0).toUpperCase() : 'U'}
+                        </div>
+                        <span className="font-medium">{review.userName}</span>
+                      </div>
+                      <span className="text-sm text-gray-500">{formatDate(review.date)}</span>
+                    </div>
+                    
+                    <div className="flex items-center gap-1 text-yellow-500 mb-2">
+                      {[...Array(5)].map((_, i) => (
+                        <Star key={i} size={16} fill={i < review.rating ? 'currentColor' : 'none'} />
+                      ))}
+                    </div>
+                    
+                    <p className="text-gray-700">{review.comment}</p>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  <p className="italic">No reviews yet. Be the first to review this product!</p>
+                </div>
+              )}
+            </div>
           </div>
-          
-          {reviews.length > 3 && (
-            <button className="mt-6 text-blue-600 hover:underline">
-              View More ⌄
-            </button>
-          )}
         </div>
       </div>
       <Footer />

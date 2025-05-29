@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import GoogleLoginButton from '../components/GoogleLoginButton'
+import { ArrowLeft } from 'lucide-react'
 
 const Login = () => {
   const navigate = useNavigate();
@@ -56,83 +57,80 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-16 px-4" style={{ fontFamily: "'Poppins', sans-serif" }}>
-        <div>
-            <h3 className="text-center text-4xl mb-1">Log in</h3>
-            <p className="text-center text-lg mb-8">Don't have an account? <Link to="/Signup" className="text-blue-600 hover:underline">Signup</Link></p>
-        </div>
-        <div className="flex items-center justify-center px-4">   
-            <form className="w-full max-w-2xl p-6 space-y-6" onSubmit={handleSubmit}>
-              <div>
-                <label className="block mb-1 text-sm text-gray-600">
-                  Email address
+    <div className="min-h-screen bg-gray-50 pt-8 px-4" style={{ fontFamily: "'Poppins', sans-serif" }}>
+      {/* Back Button */}
+      <div className="max-w-2xl mx-auto mb-4">
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors font-medium"
+        >
+          <ArrowLeft size={18} /> Back
+        </button>
+      </div>
+      
+      <div>
+        <h3 className="text-center text-4xl mb-1">Log in</h3>
+        <p className="text-center text-lg mb-8">Don't have an account? <Link to="/Signup" className="text-blue-600 hover:underline">Signup</Link></p>
+      </div>
+      <div className="flex items-center justify-center px-4">   
+          <form className="w-full max-w-2xl p-6 space-y-6" onSubmit={handleSubmit}>
+            <div>
+              <label className="block mb-1 text-sm text-gray-600">
+                Email address
+                <input 
+                  type="email" 
+                  placeholder="Enter your email address" 
+                  required 
+                  className="w-full px-4 py-4 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </label>
+            </div>
+            
+            <div>
+              <label className="block mb-1 text-sm text-gray-600">
+                Password
+                <div className="relative">
                   <input 
-                    type="email" 
-                    placeholder="Enter your email address" 
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Enter your password" 
                     required 
                     className="w-full px-4 py-4 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                   />
-                </label>
-              </div>
-              
-              <div>
-                <label className="block mb-1 text-sm text-gray-600">
-                  Password
-                  <div className="relative">
-                    <input 
-                      type={showPassword ? "text" : "password"}
-                      placeholder="Enter your password" 
-                      required 
-                      className="w-full px-4 py-4 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                    />
-                    <button 
-                      type="button"
-                      onClick={togglePasswordVisibility}
-                      className="absolute right-4 top-1/2 transform -translate-y-1/2 text-sm text-gray-600"
-                    >
-                      {showPassword ? "Hide" : "Show"}
-                    </button>
-                  </div>
-                </label>
-                <label className='flex mt-2'>
-                  <input 
-                    type="checkbox" 
-                    checked={rememberMe}
-                    onChange={(e) => setRememberMe(e.target.checked)}
-                  />
-                  <p className='p-2'>Remember me</p>
-                </label>
-              </div>
-              
-              <div>
-                <p className="text-xs text-gray-600">By creating an account, you agree to the{" "}<a href="#" className="text-blue-600 underline">Terms of use</a>{" "}and{" "}<a href="#" className="text-blue-600 underline">Privacy Policy</a>.</p>
-                {errorMsg && <p className="text-red-500 text-sm mt-2">{errorMsg}</p>}
-                <button 
-                  type="submit" 
-                  disabled={!email || !password || isLoading}
-                  className={`mt-4 w-full py-3 font-medium text-sm rounded-full ${
-                    email && password && !isLoading 
-                      ? "bg-blue-600 text-white hover:bg-blue-700" 
-                      : "bg-gray-200 text-gray-500 cursor-not-allowed"
-                  }`}
-                >
-                  {isLoading ? 'Logging in...' : 'Log in'}
-                </button>
-              </div>
-              
-              <div className='text-center'>
-                <p className="text-neutral-900 text-base font-medium underline">Forgot Password?</p>
-              </div>
-              
-              <div className="text-center text-sm text-gray-500">OR Continue with</div>
-              
-              <GoogleLoginButton />
-            </form>
-        </div>
+                  <button 
+                    type="button"
+                    onClick={togglePasswordVisibility}
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-sm text-gray-600"
+                  >
+                    {showPassword ? "Hide" : "Show"}
+                  </button>
+                </div>
+              </label>
+            </div>
+            
+            <div>
+              <p className="text-xs text-gray-600">By creating an account, you agree to the{" "}<a href="#" className="text-blue-600 underline">Terms of use</a>{" "}and{" "}<a href="#" className="text-blue-600 underline">Privacy Policy</a>.</p>
+              {errorMsg && <p className="text-red-500 text-sm mt-2">{errorMsg}</p>}
+              <button 
+                type="submit" 
+                disabled={!email || !password || isLoading}
+                className={`mt-4 w-full py-3 font-medium text-sm rounded-full ${
+                  email && password && !isLoading 
+                    ? "bg-blue-600 text-white hover:bg-blue-700" 
+                    : "bg-gray-200 text-gray-500 cursor-not-allowed"
+                }`}
+              >
+                {isLoading ? 'Logging in...' : 'Log in'}
+              </button>
+            </div>
+            <div className="text-center text-sm text-gray-500">OR Continue with</div>
+            
+            <GoogleLoginButton />
+          </form>
+      </div>
     </div>
   )
 }

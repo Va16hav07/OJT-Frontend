@@ -790,33 +790,33 @@ const AdminPage = () => {
           try {
             const parsedUser = JSON.parse(storedUser);
             
-            // Verify with the server that this is still a valid admin user
-            const response = await axios.get('https://equiply-jrej.onrender.com/admin/verify', {
-              headers: {
-                'x-access-token': storedToken,
-                'Authorization': `Bearer ${storedToken}`
+            // Only verify admin status if user claims to be admin
+            if (parsedUser.type === 'admin') {
+              try {
+                const response = await axios.get('https://equiply-jrej.onrender.com/admin/verify', {
+                  headers: {
+                    'x-access-token': storedToken,
+                    'Authorization': `Bearer ${storedToken}`
+                  }
+                });
+                
+                if (response.data.success) {
+                  setUser(parsedUser);
+                  setIsLoggedIn(true);
+                } else {
+                  setError('Admin verification failed. Please log in again.');
+                }
+              } catch (verifyError) {
+                console.error('Error verifying admin status:', verifyError);
+                // Don't clear auth automatically - let user try to login again
+                setError('Could not verify admin status. Please try logging in again.');
               }
-            });
-            
-            if (response.data.success && parsedUser.type === 'admin') {
-              setUser(parsedUser);
-              setIsLoggedIn(true);
             } else {
-              // Clear invalid data
-              localStorage.removeItem('user');
-              localStorage.removeItem('token');
-              localStorage.removeItem('userData');
-              localStorage.removeItem('authToken');
-              setError('Admin session expired. Please log in again.');
+              setError('Admin access required.');
             }
-          } catch (e) {
-            console.error('Error verifying admin status:', e);
-            setError('Failed to verify admin credentials. Please log in again.');
-            // Clear possibly invalid data
-            localStorage.removeItem('user');
-            localStorage.removeItem('token');
-            localStorage.removeItem('userData');
-            localStorage.removeItem('authToken');
+          } catch (parseError) {
+            console.error('Error parsing stored user data:', parseError);
+            setError('Invalid stored credentials. Please log in again.');
           }
         }
       } finally {
