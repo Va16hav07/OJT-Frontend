@@ -1,15 +1,31 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import { resolve } from 'path';
 
+// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  optimizeDeps: {
-    include: ['axios']
-  },
   server: {
+    port: 5173,
     hmr: {
       overlay: false
     }
+  },
+  build: {
+    outDir: 'dist',
+    // Generate a _redirects file for Netlify or Vercel to handle client-side routing
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-router-dom', 'react-dom'],
+        },
+      },
+    },
+  },
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, 'src'),
+    },
   },
   define: {
     'process.env': {
