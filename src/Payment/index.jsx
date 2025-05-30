@@ -4,6 +4,7 @@ import { ArrowLeft } from 'lucide-react';
 import Header from "../header";
 import Footer from "../Footer";
 import { useNavigate } from 'react-router-dom';
+import { useTheme } from '../contexts/ThemeContext';
 
 const Payment = () => {
   const [paymentMethod, setPaymentMethod] = useState('card');
@@ -18,6 +19,7 @@ const Payment = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const { isDarkMode } = useTheme();
 
   useEffect(() => {
     const token = localStorage.getItem('authToken');
@@ -150,52 +152,52 @@ const Payment = () => {
 
   if (!orderDetails) {
     return (
-      <>
+      <div className={`min-h-screen ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'} transition-colors duration-300`}>
         <Header />
         <div className="min-h-screen p-8 flex justify-center items-center">
-          <p>Loading order details...</p>
+          <p className={`text-lg font-medium ${isDarkMode ? 'text-white' : 'text-gray-800'} transition-colors duration-300`}>Loading order details...</p>
         </div>
         <Footer />
-      </>
+      </div>
     );
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
+    <div className={`flex flex-col min-h-screen ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'} transition-colors duration-300`}>
       <Header />
       <div className="max-w-6xl mx-auto px-4 py-8 flex-grow w-full">
         {/* Back Button */}
         <button
           onClick={handleBack}
-          className="mb-6 flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors font-medium"
+          className={`mb-6 flex items-center gap-2 ${isDarkMode ? 'text-gray-300 hover:text-white' : 'text-gray-600 hover:text-gray-800'} transition-colors font-medium`}
         >
           <ArrowLeft size={18} /> Back to Checkout
         </button>
         
         {/* Page Title */}
         <div className="text-center mb-12">
-          <h1 className="text-3xl font-bold text-gray-800">Payment</h1>
-          <div className="mt-2 w-24 h-1 bg-blue-600 mx-auto rounded-full"></div>
-          <p className="text-gray-500 mt-3">Secure payment for your rental</p>
+          <h1 className={`text-3xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'} transition-colors duration-300`}>Payment</h1>
+          <div className={`mt-2 w-24 h-1 ${isDarkMode ? 'bg-blue-500' : 'bg-blue-600'} mx-auto rounded-full transition-colors duration-300`}></div>
+          <p className={`${isDarkMode ? 'text-gray-400' : 'text-gray-500'} mt-3 transition-colors duration-300`}>Secure payment for your rental</p>
         </div>
 
-        {/* Checkout Process Steps - Without horizontal line */}
+        {/* Checkout Process Steps */}
         <div className="relative flex justify-center items-center mb-12">
           <div className="relative z-10 flex justify-between w-full max-w-md">
             {/* Step 1 - Completed */}
             <div className="flex flex-col items-center">
-              <div className="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center mb-2">
+              <div className={`w-10 h-10 rounded-full ${isDarkMode ? 'bg-blue-600' : 'bg-black'} text-white flex items-center justify-center mb-2 transition-colors duration-300`}>
                 <FaMapMarkerAlt size={18} />
               </div>
-              <p className="text-sm font-medium text-black">Address</p>
+              <p className={`text-sm font-medium ${isDarkMode ? 'text-blue-400' : 'text-black'} transition-colors duration-300`}>Address</p>
             </div>
             
             {/* Step 2 - Current */}
             <div className="flex flex-col items-center">
-              <div className="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center mb-2">
+              <div className={`w-10 h-10 rounded-full ${isDarkMode ? 'bg-blue-600' : 'bg-black'} text-white flex items-center justify-center mb-2 transition-colors duration-300`}>
                 <FaCreditCard size={18} />
               </div>
-              <p className="text-sm font-medium text-black">Payment</p>
+              <p className={`text-sm font-medium ${isDarkMode ? 'text-blue-400' : 'text-black'} transition-colors duration-300`}>Payment</p>
             </div>
           </div>
         </div>
@@ -203,13 +205,13 @@ const Payment = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Payment Methods Section */}
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-              <div className="p-6 border-b border-gray-100">
-                <h2 className="text-xl font-semibold text-gray-800">Select Payment Method</h2>
+            <div className={`${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} border rounded-xl shadow-sm overflow-hidden transition-colors duration-300`}>
+              <div className={`p-6 ${isDarkMode ? 'border-gray-700' : 'border-gray-100'} border-b transition-colors duration-300`}>
+                <h2 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-800'} transition-colors duration-300`}>Select Payment Method</h2>
               </div>
               
               {error && (
-                <div className="mx-6 mt-6 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
+                <div className={`mx-6 mt-6 ${isDarkMode ? 'bg-red-900/20 border-red-800 text-red-400' : 'bg-red-50 border-red-200 text-red-600'} border px-4 py-3 rounded-lg text-sm transition-colors duration-300`}>
                   {error}
                 </div>
               )}
@@ -219,8 +221,8 @@ const Payment = () => {
                 <div
                   className={`border rounded-lg transition-all ${
                     paymentMethod === 'card' 
-                      ? 'border-blue-600 bg-blue-50' 
-                      : 'border-gray-200 hover:border-gray-300'
+                      ? `${isDarkMode ? 'border-blue-500 bg-blue-900/20' : 'border-blue-600 bg-blue-50'}` 
+                      : `${isDarkMode ? 'border-gray-600 hover:border-gray-500' : 'border-gray-200 hover:border-gray-300'}`
                   }`}
                 >
                   <label className="flex cursor-pointer p-4">
@@ -231,21 +233,21 @@ const Payment = () => {
                         onChange={() => setPaymentMethod('card')}
                         className="mt-0.5"
                       />
-                      <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center">
+                      <div className={`w-10 h-10 rounded-full ${isDarkMode ? 'bg-blue-900/30 text-blue-400' : 'bg-blue-100 text-blue-600'} flex items-center justify-center transition-colors duration-300`}>
                         <FaCreditCard size={20} />
                       </div>
                       <div>
-                        <p className="font-medium">Credit / Debit Card</p>
-                        <p className="text-sm text-gray-500">Secure payment via credit or debit card</p>
+                        <p className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'} transition-colors duration-300`}>Credit / Debit Card</p>
+                        <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} transition-colors duration-300`}>Secure payment via credit or debit card</p>
                       </div>
                     </div>
                   </label>
                   
                   {paymentMethod === 'card' && (
-                    <div className="border-t border-gray-100 p-4 bg-gray-50 space-y-4">
+                    <div className={`${isDarkMode ? 'border-gray-700 bg-gray-900/30' : 'border-gray-100 bg-gray-50'} border-t p-4 space-y-4 transition-colors duration-300`}>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="col-span-full">
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Card Number</label>
+                          <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'} mb-1 transition-colors duration-300`}>Card Number</label>
                           <div className="relative">
                             <input
                               type="text"
@@ -253,47 +255,63 @@ const Payment = () => {
                               value={cardDetails.cardNumber}
                               onChange={handleInputChange}
                               placeholder="1234 5678 9012 3456"
-                              className="w-full px-4 py-3 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                              className={`w-full px-4 py-3 pr-10 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                                isDarkMode 
+                                  ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-400' 
+                                  : 'border-gray-300 bg-white text-gray-900'
+                              } transition-colors duration-300`}
                             />
                             <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                              <FaCreditCard className="text-gray-400" />
+                              <FaCreditCard className={`${isDarkMode ? 'text-gray-400' : 'text-gray-400'} transition-colors duration-300`} />
                             </div>
                           </div>
                         </div>
                         
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Expiry Date</label>
+                          <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'} mb-1 transition-colors duration-300`}>Expiry Date</label>
                           <input
                             type="text"
                             name="expiryDate"
                             value={cardDetails.expiryDate}
                             onChange={handleInputChange}
                             placeholder="MM/YY"
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                              isDarkMode 
+                                ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-400' 
+                                : 'border-gray-300 bg-white text-gray-900'
+                            } transition-colors duration-300`}
                           />
                         </div>
                         
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">CVC</label>
+                          <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'} mb-1 transition-colors duration-300`}>CVC</label>
                           <input
                             type="text"
                             name="cvc"
                             value={cardDetails.cvc}
                             onChange={handleInputChange}
                             placeholder="123"
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                              isDarkMode 
+                                ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-400' 
+                                : 'border-gray-300 bg-white text-gray-900'
+                            } transition-colors duration-300`}
                           />
                         </div>
                         
                         <div className="col-span-full">
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Name on Card</label>
+                          <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'} mb-1 transition-colors duration-300`}>Name on Card</label>
                           <input
                             type="text"
                             name="cardholderName"
                             value={cardDetails.cardholderName}
                             onChange={handleInputChange}
                             placeholder="John Doe"
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                              isDarkMode 
+                                ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-400' 
+                                : 'border-gray-300 bg-white text-gray-900'
+                            } transition-colors duration-300`}
                           />
                         </div>
                       </div>
@@ -305,8 +323,8 @@ const Payment = () => {
                 <div
                   className={`border rounded-lg transition-all ${
                     paymentMethod === 'paypal' 
-                      ? 'border-blue-600 bg-blue-50' 
-                      : 'border-gray-200 hover:border-gray-300'
+                      ? `${isDarkMode ? 'border-blue-500 bg-blue-900/20' : 'border-blue-600 bg-blue-50'}` 
+                      : `${isDarkMode ? 'border-gray-600 hover:border-gray-500' : 'border-gray-200 hover:border-gray-300'}`
                   }`}
                 >
                   <label className="flex cursor-pointer p-4">
@@ -317,26 +335,30 @@ const Payment = () => {
                         onChange={() => setPaymentMethod('paypal')}
                         className="mt-0.5"
                       />
-                      <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center">
+                      <div className={`w-10 h-10 rounded-full ${isDarkMode ? 'bg-blue-900/30 text-blue-400' : 'bg-blue-100 text-blue-600'} flex items-center justify-center transition-colors duration-300`}>
                         <FaPaypal size={20} />
                       </div>
                       <div>
-                        <p className="font-medium">PayPal</p>
-                        <p className="text-sm text-gray-500">Fast and secure payment with PayPal</p>
+                        <p className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'} transition-colors duration-300`}>PayPal</p>
+                        <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} transition-colors duration-300`}>Fast and secure payment with PayPal</p>
                       </div>
                     </div>
                   </label>
                   
                   {paymentMethod === 'paypal' && (
-                    <div className="border-t border-gray-100 p-4 bg-gray-50">
+                    <div className={`${isDarkMode ? 'border-gray-700 bg-gray-900/30' : 'border-gray-100 bg-gray-50'} border-t p-4 transition-colors duration-300`}>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">PayPal Email</label>
+                        <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'} mb-1 transition-colors duration-300`}>PayPal Email</label>
                         <input
                           type="email"
                           value={paypalEmail}
                           onChange={(e) => setPaypalEmail(e.target.value)}
                           placeholder="your-email@example.com"
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                            isDarkMode 
+                              ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-400' 
+                              : 'border-gray-300 bg-white text-gray-900'
+                          } transition-colors duration-300`}
                         />
                       </div>
                     </div>
@@ -348,19 +370,19 @@ const Payment = () => {
 
           {/* Order Summary */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-xl shadow-sm overflow-hidden sticky top-8">
-              <div className="p-6 border-b border-gray-100">
-                <h2 className="text-xl font-semibold text-gray-800">Order Summary</h2>
+            <div className={`${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} border rounded-xl shadow-sm overflow-hidden sticky top-8 transition-colors duration-300`}>
+              <div className={`p-6 ${isDarkMode ? 'border-gray-700' : 'border-gray-100'} border-b transition-colors duration-300`}>
+                <h2 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-800'} transition-colors duration-300`}>Order Summary</h2>
               </div>
               
               <div className="p-6">
-                <div className="border-b border-gray-100 pb-4 mb-4">
-                  <p className="text-gray-500 mb-1">Order Total</p>
-                  <p className="text-2xl font-bold">₹{orderDetails?.total?.toFixed(2) || "0.00"}</p>
+                <div className={`${isDarkMode ? 'border-gray-700' : 'border-gray-100'} border-b pb-4 mb-4 transition-colors duration-300`}>
+                  <p className={`${isDarkMode ? 'text-gray-400' : 'text-gray-500'} mb-1 transition-colors duration-300`}>Order Total</p>
+                  <p className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'} transition-colors duration-300`}>₹{orderDetails?.total?.toFixed(2) || "0.00"}</p>
                 </div>
                 
                 <button 
-                  className="w-full px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed flex justify-center items-center gap-2"
+                  className={`w-full px-6 py-3 ${isDarkMode ? 'bg-blue-600 hover:bg-blue-700' : 'bg-black hover:bg-gray-800'} text-white rounded-lg transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed flex justify-center items-center gap-2`}
                   onClick={handleConfirmPayment}
                   disabled={loading}
                 >
@@ -380,7 +402,7 @@ const Payment = () => {
                 <div className="mt-4 text-center">
                   <button 
                     onClick={handleBack}
-                    className="text-gray-600 hover:text-gray-800 text-sm"
+                    className={`${isDarkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-600 hover:text-gray-800'} text-sm transition-colors duration-300`}
                   >
                     Return to checkout
                   </button>

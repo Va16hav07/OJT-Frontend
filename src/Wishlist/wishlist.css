@@ -43,6 +43,11 @@
 .item-details h3 {
     margin: 0 0 0.5rem 0;
     cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+/* Light mode */
+.item-details h3 {
     color: #333;
 }
 
@@ -50,11 +55,30 @@
     color: #007bff;
 }
 
+/* Dark mode */
+:root.dark .item-details h3 {
+    color: #ffffff;
+}
+
+:root.dark .item-details h3:hover {
+    color: #60a5fa;
+}
+
 .price {
     font-size: 1.2rem;
     font-weight: bold;
-    color: #28a745;
     margin: 0.5rem 0;
+    transition: color 0.3s ease;
+}
+
+/* Light mode price */
+.price {
+    color: #1f2937;
+}
+
+/* Dark mode price */
+:root.dark .price {
+    color: #60a5fa;
 }
 
 .remove-btn {
@@ -75,13 +99,33 @@
 .empty-wishlist {
     text-align: center;
     font-size: 1.2rem;
-    color: #666;
     margin-top: 2rem;
+    transition: color 0.3s ease;
+}
+
+/* Light mode empty state */
+.empty-wishlist {
+    color: #666;
+}
+
+/* Dark mode empty state */
+:root.dark .empty-wishlist {
+    color: #9ca3af;
 }
 
 .loading {
     text-align: center;
     font-size: 1.2rem;
-    color: #666;
     margin-top: 2rem;
-} 
+    transition: color 0.3s ease;
+}
+
+/* Light mode loading */
+.loading {
+    color: #666;
+}
+
+/* Dark mode loading */
+:root.dark .loading {
+    color: #9ca3af;
+}

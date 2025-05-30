@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import Header from "../header";
 import Footer from "../Footer";
+import indianCities from "../data/cities";
 
 const PutRent = () => {
   const [ratePeriod, setRatePeriod] = useState("days");
@@ -49,6 +50,30 @@ const PutRent = () => {
     "Costume",
     "Other"
   ];
+
+  // Add city-state mapping
+  const cityStateMap = {
+    "Bengaluru": "Karnataka",
+    "Mumbai": "Maharashtra",
+    "Delhi": "Delhi",
+    "Hyderabad": "Telangana",
+    "Chennai": "Tamil Nadu",
+    "Kolkata": "West Bengal",
+    "Pune": "Maharashtra",
+    "Ahmedabad": "Gujarat",
+    "Jaipur": "Rajasthan",
+    "Lucknow": "Uttar Pradesh",
+    "Kochin": "Kerala",
+    "Thiruvananthapuram": "Kerala",
+    "Guwahati": "Assam",
+    "Patna": "Bihar"
+  };
+
+  // Add function to handle city change
+  const handleCityChange = (selectedCity) => {
+    setCity(selectedCity);
+    setState(cityStateMap[selectedCity] || "");
+  };
 
   const addPrice = () => {
     // Get all available periods for the new price entry
@@ -443,17 +468,30 @@ const PutRent = () => {
                       onChange={(e) => setAddressLine2(e.target.value)}
                     />
                     <div className="grid grid-cols-3 gap-3">
-                      <input
-                        className="px-4 py-3 border border-gray-300 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="City"
+                      <select
+                        className="px-4 py-3 border border-gray-300 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white"
                         value={city}
-                        onChange={(e) => setCity(e.target.value)}
-                      />
+                        onChange={(e) => handleCityChange(e.target.value)}
+                        style={{
+                          backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
+                          backgroundPosition: `right 0.5rem center`,
+                          backgroundRepeat: `no-repeat`,
+                          backgroundSize: `1.5em 1.5em`,
+                          paddingRight: `2.5rem`
+                        }}
+                      >
+                        <option value="">Select City</option>
+                        {indianCities.map((cityName) => (
+                          <option key={cityName} value={cityName}>
+                            {cityName}
+                          </option>
+                        ))}
+                      </select>
                       <input
                         className="px-4 py-3 border border-gray-300 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         placeholder="State"
                         value={state}
-                        onChange={(e) => setState(e.target.value)}
+                        readOnly
                       />
                       <input
                         className="px-4 py-3 border border-gray-300 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"

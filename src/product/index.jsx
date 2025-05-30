@@ -4,6 +4,7 @@ import Header from "../header";
 import Footer from "../Footer";
 import { Heart, ArrowLeft } from "lucide-react";
 import axios from "axios";
+import { useTheme } from '../contexts/ThemeContext';
 
 // Create Wishlist Context
 export const WishlistContext = createContext();
@@ -85,6 +86,7 @@ const Product = () => {
     productsPerPage: parseInt(limitParam)
   });
   const [sortOrder, setSortOrder] = useState("default"); // Add this new state for price sorting
+  const { isDarkMode } = useTheme();
   
   // Add default empty arrays to prevent "undefined.map()" errors
   const { wishlistItems = [], updateWishlist } = useContext(WishlistContext) || {};
@@ -114,6 +116,10 @@ const Product = () => {
         }
         searchParams.append('page', pagination.currentPage.toString());
         searchParams.append('limit', pagination.productsPerPage.toString());
+        
+        // Add city parameter from localStorage
+        const selectedCity = localStorage.getItem('selectedCity') || 'Bengaluru';
+        searchParams.append('city', selectedCity);
 
         const url = `https://equiply-jrej.onrender.com/product/search?${searchParams.toString()}`;
         console.log('Fetching products from:', url);
@@ -261,7 +267,7 @@ const Product = () => {
   };
 
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className={`bg-gray-50 min-h-screen ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'} transition-colors duration-300`}>
       <Header />
       {toast.show && (
         <Toast
@@ -276,7 +282,7 @@ const Product = () => {
         <div className="mb-6">
           <button 
             onClick={() => navigate('/')}
-            className="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors font-medium"
+            className={`flex items-center gap-2 ${isDarkMode ? 'text-gray-300 hover:text-white' : 'text-gray-600 hover:text-gray-800'} transition-colors font-medium`}
           >
             <ArrowLeft size={18} />
             <span>Back to Home</span>
@@ -286,23 +292,27 @@ const Product = () => {
         {/* Enhanced Title Section */}
         <div className="mb-10">
           <div className="text-center">
-            <h1 className="text-neutral-700 text-4xl font-bold font-['Oxygen'] mb-2">
+            <h1 className={`text-neutral-700 text-4xl font-bold font-['Oxygen'] mb-2 ${isDarkMode ? 'text-white' : 'text-gray-800'} transition-colors duration-300`}>
               Browse Products
             </h1>
             <div className="mt-2 w-24 h-1 bg-blue-600 mx-auto rounded-full"></div>
-            <p className="text-gray-500 mt-3">Find the perfect equipment for your needs</p>
+            <p className={`text-gray-500 mt-3 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} transition-colors duration-300`}>
+              Find the perfect equipment for your needs
+            </p>
           </div>
         </div>
 
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Enhanced Sidebar */}
           <aside className="w-full lg:w-1/5 space-y-6">
-            <div className="bg-white rounded-xl shadow-sm p-6">
+            <div className={`${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} rounded-xl shadow-sm border p-6 transition-colors duration-300`}>
               {/* Add Sort by Price section */}
               <div className="mb-8">
-                <h2 className="font-semibold text-lg mb-3 border-b pb-2">Sort by Price</h2>
+                <h2 className={`font-semibold text-lg mb-3 border-b pb-2 ${isDarkMode ? 'text-white border-gray-700' : 'text-gray-800 border-gray-200'} transition-colors duration-300`}>
+                  Sort by Price
+                </h2>
                 <div className="space-y-3 pt-2">
-                  <label className="block text-sm">
+                  <label className={`block text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'} transition-colors duration-300`}>
                     <input
                       type="radio"
                       name="sort"
@@ -312,7 +322,7 @@ const Product = () => {
                     />
                     Default
                   </label>
-                  <label className="block text-sm">
+                  <label className={`block text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'} transition-colors duration-300`}>
                     <input
                       type="radio"
                       name="sort"
@@ -322,7 +332,7 @@ const Product = () => {
                     />
                     Price: Low to High
                   </label>
-                  <label className="block text-sm">
+                  <label className={`block text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'} transition-colors duration-300`}>
                     <input
                       type="radio"
                       name="sort"
@@ -336,10 +346,12 @@ const Product = () => {
               </div>
 
               {/* Enhanced Category Filter */}
-              <h2 className="font-semibold text-lg mb-3 border-b pb-2">Filter by Category</h2>
+              <h2 className={`font-semibold text-lg mb-3 border-b pb-2 ${isDarkMode ? 'text-white border-gray-700' : 'text-gray-800 border-gray-200'} transition-colors duration-300`}>
+                Filter by Category
+              </h2>
               <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2">
                 {["Mobile", "Electronics", "House Appliances", "Accessories", "Tools", "Music", "Transport", "Gaming", "Books", "Costume", "Other"].map((cat) => (
-                  <label key={cat} className="block text-sm">
+                  <label key={cat} className={`block text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'} transition-colors duration-300`}>
                     <input
                       type="checkbox"
                       className="mr-2"
@@ -354,7 +366,7 @@ const Product = () => {
               {selectedCategories.length > 0 && (
                 <button
                   onClick={handleClearFilters}
-                  className="mt-4 text-sm flex items-center gap-1 text-blue-600 hover:text-blue-800"
+                  className={`mt-4 text-sm flex items-center gap-1 ${isDarkMode ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-800'} transition-colors duration-300`}
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
@@ -369,13 +381,13 @@ const Product = () => {
           <main className="flex-1">
             {/* Enhanced Active Filters Display */}
             {selectedCategories.length > 0 && (
-              <div className="bg-white rounded-xl shadow-sm p-4 mb-6">
-                <p className="text-sm text-gray-600 mb-3 font-medium">Active filters:</p>
+              <div className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-xl shadow-sm p-4 mb-6 transition-colors duration-300`}>
+                <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'} mb-3 font-medium transition-colors duration-300`}>Active filters:</p>
                 <div className="flex flex-wrap gap-2">
                   {selectedCategories.map((category) => (
                     <span
                       key={category}
-                      className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800"
+                      className={`inline-flex items-center px-3 py-1 rounded-full text-sm ${isDarkMode ? 'bg-blue-600 text-white' : 'bg-blue-100 text-blue-800'} transition-colors duration-300`}
                     >
                       {category}
                       <button
@@ -392,43 +404,72 @@ const Product = () => {
 
             {/* Enhanced Loading State */}
             {loading ? (
-              <div className="bg-white rounded-xl shadow-sm p-8 text-center">
-                <div className="inline-block h-10 w-10 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent"></div>
-                <p className="mt-4 text-gray-600">Loading products...</p>
+              <div className="flex justify-center items-center h-64">
+                <div className={`text-center ${isDarkMode ? 'text-white' : 'text-gray-600'} transition-colors duration-300`}>
+                  <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                  <p className="text-lg font-medium">Loading products...</p>
+                </div>
               </div>
             ) : error ? (
-              <div className="bg-red-50 border border-red-200 rounded-xl shadow-sm p-8 text-center">
-                <p className="text-red-600 font-medium">Error: {error}</p>
-                <button className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors" onClick={() => window.location.reload()}>
+              <div className={`${isDarkMode ? 'bg-red-900/20 border-red-800 text-red-400' : 'bg-red-50 border-red-200 text-red-600'} border rounded-xl p-8 text-center transition-colors duration-300`}>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <h3 className="text-lg font-medium mb-2">Something went wrong</h3>
+                <p className="mb-4">{error}</p>
+                <button 
+                  onClick={() => window.location.reload()}
+                  className={`px-4 py-2 ${isDarkMode ? 'bg-red-600 hover:bg-red-700' : 'bg-red-600 hover:bg-red-700'} text-white rounded-lg transition-colors`}
+                >
                   Try Again
                 </button>
               </div>
             ) : products.length === 0 ? (
-              <div className="bg-white rounded-xl shadow-sm p-8 text-center">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-gray-400 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+              <div className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-xl shadow-sm p-12 text-center transition-colors duration-300`}>
+                <svg xmlns="http://www.w3.org/2000/svg" className={`h-16 w-16 ${isDarkMode ? 'text-gray-600' : 'text-gray-400'} mx-auto mb-4 transition-colors duration-300`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
-                <p className="text-gray-600 font-medium">
-                  {selectedCategories.length > 0 
-                    ? `No products found in ${selectedCategories.join(', ')} category.`
-                    : "No products found."
+                <h3 className={`text-lg font-medium mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'} transition-colors duration-300`}>No products found</h3>
+                <p className={`${isDarkMode ? 'text-gray-400' : 'text-gray-600'} mb-6 transition-colors duration-300`}>
+                  {searchTerm ? 
+                    `No products match your search "${searchTerm}" in ${localStorage.getItem('selectedCity') || 'All Cities'}` : 
+                    `No products available in ${localStorage.getItem('selectedCity') || 'All Cities'} at the moment.`
                   }
                 </p>
+                <div className="flex gap-3 justify-center">
+                  {searchTerm && (
+                    <button 
+                      onClick={() => {
+                        navigate('/product');
+                        window.location.reload();
+                      }}
+                      className={`px-6 py-2 ${isDarkMode ? 'bg-blue-600 hover:bg-blue-700' : 'bg-blue-600 hover:bg-blue-700'} text-white rounded-lg transition-colors`}
+                    >
+                      Browse All Products
+                    </button>
+                  )}
+                  <button 
+                    onClick={() => navigate('/')}
+                    className={`px-6 py-2 border ${isDarkMode ? 'border-gray-600 text-gray-300 hover:bg-gray-700' : 'border-gray-300 text-gray-700 hover:bg-gray-50'} rounded-lg transition-colors`}
+                  >
+                    Back to Home
+                  </button>
+                </div>
               </div>
             ) : (
               <>
                 {/* Products Count Info */}
-                <div className="bg-white rounded-xl shadow-sm p-4 mb-6">
+                <div className={`${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border rounded-xl shadow-sm p-4 mb-6 transition-colors duration-300`}>
                   <div className="flex flex-col sm:flex-row justify-between items-center">
-                    <p className="text-gray-600 mb-2 sm:mb-0">
+                    <p className={`mb-2 sm:mb-0 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'} transition-colors duration-300`}>
                       Showing <span className="font-medium">{products.length}</span> of <span className="font-medium">{pagination.totalProducts}</span> products
                     </p>
                     <div className="flex items-center gap-2">
-                      <label className="text-sm text-gray-600">Items per page:</label>
+                      <label className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'} transition-colors duration-300`}>Items per page:</label>
                       <select
                         value={pagination.productsPerPage}
                         onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
-                        className="border rounded px-2 py-1 text-sm bg-gray-50"
+                        className={`border rounded px-2 py-1 text-sm ${isDarkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'} transition-colors duration-300`}
                       >
                         <option value="5">5</option>
                         <option value="10">10</option>
@@ -452,7 +493,7 @@ const Product = () => {
                     return (
                       <div
                         key={product._id || product.id}
-                        className="border border-gray-200 rounded-lg p-4 flex flex-col items-center text-center shadow-sm hover:shadow-md transition-shadow relative"
+                        className={`border rounded-lg p-4 flex flex-col items-center text-center shadow-sm hover:shadow-md transition-shadow relative ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}
                       >
                         <button
                           className={`absolute top-2 right-2 p-1 rounded-full bg-white hover:bg-gray-100 transition-colors ${
@@ -472,9 +513,13 @@ const Product = () => {
                             alt={product.name}
                             className="w-32 h-32 object-contain mb-4"
                           />
-                          <h3 className="text-base font-medium mb-2 line-clamp-2 text-gray-800 no-underline">{product.name}</h3>
-                          <p className="text-lg font-bold mb-4 text-slate-700">₹{product.price}</p>
-                          <button className="w-full bg-black text-white px-4 py-2 text-sm rounded hover:bg-gray-800 transition-colors">
+                          <h3 className={`text-base font-medium mb-2 line-clamp-2 ${isDarkMode ? 'text-white' : 'text-gray-800'} no-underline`}>
+                            {product.name}
+                          </h3>
+                          <p className={`text-lg font-bold mb-4 ${isDarkMode ? 'text-blue-400' : 'text-slate-700'}`}>
+                            ₹{product.price}
+                          </p>
+                          <button className={`w-full px-4 py-2 text-sm rounded transition-colors ${isDarkMode ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'bg-gray-900 hover:bg-gray-800 text-white'}`}>
                             Rent Now
                           </button>
                         </Link>
@@ -485,11 +530,11 @@ const Product = () => {
 
                 {/* Enhanced Pagination Controls */}
                 <div className="mt-8 flex justify-center">
-                  <div className="bg-white rounded-lg shadow-sm inline-flex items-center overflow-hidden">
+                  <div className={`${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border rounded-lg shadow-sm inline-flex items-center overflow-hidden transition-colors duration-300`}>
                     <button
                       onClick={() => handlePageChange(1)}
                       disabled={pagination.currentPage === 1}
-                      className="px-3 py-2 border-r disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                      className={`px-3 py-2 border-r disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${isDarkMode ? 'border-gray-700 text-gray-300 hover:bg-gray-700' : 'border-gray-200 text-gray-700 hover:bg-gray-50'}`}
                       title="First page"
                     >
                       «
@@ -497,27 +542,26 @@ const Product = () => {
                     <button
                       onClick={() => handlePageChange(pagination.currentPage - 1)}
                       disabled={pagination.currentPage === 1}
-                      className="px-3 py-2 border-r disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                      className={`px-3 py-2 border-r disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${isDarkMode ? 'border-gray-700 text-gray-300 hover:bg-gray-700' : 'border-gray-200 text-gray-700 hover:bg-gray-50'}`}
                     >
                       ‹
                     </button>
                     
-                    {/* Page number display */}
-                    <div className="px-4 py-2 font-medium">
+                    <div className={`px-4 py-2 font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'} transition-colors duration-300`}>
                       {pagination.currentPage} of {pagination.totalPages}
                     </div>
                     
                     <button
                       onClick={() => handlePageChange(pagination.currentPage + 1)}
                       disabled={pagination.currentPage === pagination.totalPages}
-                      className="px-3 py-2 border-l disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                      className={`px-3 py-2 border-l disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${isDarkMode ? 'border-gray-700 text-gray-300 hover:bg-gray-700' : 'border-gray-200 text-gray-700 hover:bg-gray-50'}`}
                     >
                       ›
                     </button>
                     <button
                       onClick={() => handlePageChange(pagination.totalPages)}
                       disabled={pagination.currentPage === pagination.totalPages}
-                      className="px-3 py-2 border-l disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                      className={`px-3 py-2 border-l disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${isDarkMode ? 'border-gray-700 text-gray-300 hover:bg-gray-700' : 'border-gray-200 text-gray-700 hover:bg-gray-50'}`}
                       title="Last page"
                     >
                       »
